@@ -105,7 +105,7 @@ architecture Structural of micro-ondes is
     signal btn_C : std_logic;
     signal btn_H : std_logic;
     signal btn_B : std_logic;
-    signal porte_ferme : std_logic;
+    signal porte_fermee : std_logic;
     signal debut : std_logic;
     signal fonctionnement : std_logic;
     signal fin : std_logic;
@@ -152,9 +152,9 @@ begin
     p_porte : process(switches_i(15))
         begin
             if switches_i(15) then
-                porte_ferme <= 1;
+                porte_fermee <= 1;
             else 
-                porte_ferme <= 0;
+                porte_fermee <= 0;
             end if;
         end process p_porte;
 ---------------------------------------------------------------
@@ -171,9 +171,9 @@ begin
 ---------------------------------------------------------------
 -- autorisation fonctionnement
 ---------------------------------------------------------------
-    p_autorisation : process(start_stop, porte_ferme)
+    p_autorisation : process(start_stop, porte_fermee)
         begin
-            if start_stop and porte_ferme then
+            if start_stop and porte_fermee then
                 debut <= 1;
             else
                 debut <= 0;
