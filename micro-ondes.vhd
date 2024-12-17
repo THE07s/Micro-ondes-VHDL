@@ -90,6 +90,8 @@ entity micro-ondes is
         btn_gauche_i      : in  std_logic;
         btn_center_i      : in  std_logic;
         btn_droite_i      : in  std_logic;
+        btn_haut_i        : in  std_logic;
+        btn_bad_i         : in  std_logic;
         led_magnetron_o   : out std_logic;
         led_buzzer_o      : out std_logic
     );
@@ -97,6 +99,20 @@ end micro-ondes;
 
 architecture Structural of micro-ondes is
     -- Declarations
+    signal start_stop : std_logic;
+    signal bnt_G : std_logic;
+    signal btn_D : std_logic;
+    signal btn_C : std_logic;
+    signal btn_H : std_logic;
+    signal btn_B : std_logic;
+    signal porte_ferme : std_logic;
+    signal debut : std_logic
+    signal seconde : in std_logic_vector(5999 downto 0);
+    signal dizaine_minute : 
+    signal unite_minute :
+    signal dizaine_seconde :
+    signal unite_seconde :
+
     
     -- signal clk_slow                : std_logic;
     -- signal start_stop              : integer range 0 to 15;
