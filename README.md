@@ -57,6 +57,20 @@ sequenceDiagram
      Micro-onde-->>Utilisateur: Fin de cuisson, buzzer activé
 ```
 
+### Schéma de la Machine à État
+
+```mermaid
+stateDiagram
+    [*] --> Idle
+    Idle --> DoorClosed : Porte fermée
+    DoorClosed --> TimeSelected : Temps sélectionné
+    TimeSelected --> Cooking : Bouton central appuyé
+    Cooking --> Idle : Temps écoulé / Buzzer activé
+    Cooking --> Idle : Bouton central appuyé / Arrêt manuel
+    DoorClosed --> Idle : Porte ouverte
+    TimeSelected --> Idle : Porte ouverte
+```
+
 ### Images des Composants
 
 ![Carte BASYS3](https://example.com/basys3.jpg)
