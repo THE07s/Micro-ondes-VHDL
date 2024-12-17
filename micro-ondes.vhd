@@ -109,12 +109,16 @@ architecture Structural of micro-ondes is
     signal debut : std_logic;
     signal fonctionnement : std_logic;
     signal fin : std_logic;
+    signal une_seconde : std_logic;
+    signal vingt_milliseconde : std_logic;
     
     signal seconde : integer range 0 to 5999;
     signal dizaine_minute : integer range 0 to 9;
     signal unite_minute : integer range 0 to 9;
     signal dizaine_seconde : integer range 0 to 5;
     signal unite_seconde : integer range 0 to 9;
+    signal port_afficheur : integer range 0 to 3;
+    signal valeur_afficheur : integer range 0 to 9;
 
     -- signal clk_slow                : std_logic;
     -- signal start_stop              : integer range 0 to 15;
@@ -139,16 +143,46 @@ begin
             reset_i => '0',
             inc_i   => '1',
             value_o => open,
-            cycle_o => clk_slow
+            cycle_o => une_seconde
         );    
+---------------------------------------------------------------
+-- Vérification fermeture porte
+---------------------------------------------------------------
 
-
-
-
-
-
-
-
+    p_porte : process(switches_i(15))
+        begin
+            if switches_i(15) then
+                porte_ferme <= 1;
+            else 
+                porte_ferme <= 0;
+            end if;
+        end process p_porte;
+---------------------------------------------------------------
+-- Bouton de démarrage
+---------------------------------------------------------------
+    p_start_stop : process(btn_C)
+        begin
+            if btn_C then
+                 start_stop <= 1;
+            else
+                start_stop <=0;
+            end if;
+        end process p_start_stop;
+---------------------------------------------------------------
+-- autorisation fonctionnement
+---------------------------------------------------------------
+    p_autorisation : process(start_stop, porte_ferme)
+        begin
+            if start_stop and porte_ferme then
+                debut <= 1;
+            else
+                debut <= 0;
+            end if;
+        end process p_autorisation;
+---------------------------------------------------------------
+-- 
+---------------------------------------------------------------
+    
 
 
 
