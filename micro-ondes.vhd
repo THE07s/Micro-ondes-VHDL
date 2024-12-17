@@ -88,20 +88,18 @@ entity micro-ondes is
         clk_i             : in  std_logic;
         switches_i        : in  std_logic_vector(15 downto 0);
         btn_center_i      : in  std_logic;
-        led_o             : out std_logic_vector(15 downto 0);
-        hit_o             : out std_logic_vector(6 downto 0);
-        miss_o            : out std_logic_vector(6 downto 0)
+        led_o             : out std_logic_vector(15 downto 0)
     );
 end micro-ondes;
 
 architecture Structural of micro-ondes is
     -- Declarations
     signal clk_slow     : std_logic;
-    signal led_index    : integer range 0 to 15;
-    signal btn_index    : integer range 0 to 15;
-    signal hit          : std_logic;
-    signal miss         : std_logic;
-    signal reset        : std_logic;
+    signal start_stop    : integer range 0 to 15;
+    signal configuration_chrono    : integer range 0 to 15;
+    signal fonctionnement          : std_logic;
+    signal convertisseur         : std_logic;
+    signal et        : std_logic;
     signal score_hit    : integer range 0 to 9;
     signal score_miss   : integer range 0 to 9;
     
