@@ -3,8 +3,6 @@
 -- CounterModN entity+archi
 --
 --*****************************************************************************
-
-
 library ieee;
 use ieee.std_logic_1164.all;
 
@@ -45,8 +43,6 @@ end Behavioral;
 -- SegmentDecoder entity+archi
 --
 --*****************************************************************************
-
-
 library ieee;
 use ieee.std_logic_1164.all;
 
@@ -81,15 +77,13 @@ end TruthTable;
 
 --*****************************************************************************
 --
--- TapeTaupe entity+archi
+-- micro-ondes entity+archi
 --
 --*****************************************************************************
-
-
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity TapeTaupe is
+entity micro-ondes is
     port(
         clk_i             : in  std_logic;
         switches_i        : in  std_logic_vector(15 downto 0);
@@ -98,9 +92,9 @@ entity TapeTaupe is
         hit_o             : out std_logic_vector(6 downto 0);
         miss_o            : out std_logic_vector(6 downto 0)
     );
-end TapeTaupe;
+end micro-ondes;
 
-architecture Structural of TapeTaupe is
+architecture Structural of micro-ondes is
     -- Declarations
     signal clk_slow     : std_logic;
     signal led_index    : integer range 0 to 15;
