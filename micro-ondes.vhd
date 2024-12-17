@@ -107,6 +107,9 @@ architecture Structural of micro-ondes is
     signal btn_B : std_logic;
     signal porte_ferme : std_logic;
     signal debut : std_logic;
+    signal fonctionnement : std_logic;
+    signal fin : std_logic;
+    
     signal seconde : integer range 0 to 5999;
     signal dizaine_minute : integer range 0 to 9;
     signal unite_minute : integer range 0 to 9;
