@@ -87,8 +87,11 @@ entity micro-ondes is
     port(
         clk_i             : in  std_logic;
         switches_i        : in  std_logic_vector(15 downto 0);
+        btn_gauche_i      : in  std_logic;
         btn_center_i      : in  std_logic;
-        led_o             : out std_logic_vector(15 downto 0)
+        btn_droite_i      : in  std_logic;
+        led_magnetron_o   : out std_logic
+        led_buzzer_o      : out std_logic
     );
 end micro-ondes;
 
