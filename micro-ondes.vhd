@@ -121,7 +121,10 @@ begin
             value_o => open,
             cycle_o => clk_slow
         );    
-            
+
+---------------------------------------------------------------
+-- Compteur de score
+---------------------------------------------------------------
     p_counter : process(clk_slow)
         begin
             if rising_edge(clk_slow) then
@@ -132,7 +135,8 @@ begin
                 end if;
             end if;
          end process p_counter;   
-       
+
+         
     p_decoder : process(clk_slow, led_index)
         begin
             led_o(led_index) <= '1';
@@ -186,7 +190,4 @@ begin
             digit_i => score_miss,
             segments_o => miss_o
         );
-        
-    
-
 end Structural;
