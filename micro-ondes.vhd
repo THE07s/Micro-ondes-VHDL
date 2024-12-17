@@ -108,7 +108,7 @@ architecture Structural of micro-ondes is
     signal porte_ferme : std_logic;
     signal debut : std_logic;
     signal seconde : integer range 0 to 5999;
-    signal dizaine_minute : integer range 0 to 5;
+    signal dizaine_minute : integer range 0 to 9;
     signal unite_minute : integer range 0 to 9;
     signal dizaine_seconde : integer range 0 to 5;
     signal unite_seconde : integer range 0 to 9;
