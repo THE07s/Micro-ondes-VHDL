@@ -180,9 +180,17 @@ begin
             end if;
         end process p_autorisation;
 ---------------------------------------------------------------
--- 
+-- Configuration du chronomètre
 ---------------------------------------------------------------
-    
+    p_config_chrono : process(btn_G, btn_D)
+            begin
+                if btn_G and seconde > 0 then
+                    seconde <= seconde - 1;
+                elsif btn_D and seconde < 5999 then
+                    seconde <= seconde + 1;
+                end if;
+            end process p_config_chrono;
+                
 
 
 
