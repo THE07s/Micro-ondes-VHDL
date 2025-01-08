@@ -99,22 +99,22 @@ end micro-ondes;
 
 architecture Structural of micro-ondes is
     -- Declarations
-    signal start_stop : std_logic;
-    signal bnt_G : std_logic;
-    signal btn_D : std_logic;
-    signal btn_C : std_logic;
-    signal btn_H : std_logic;
-    signal btn_B : std_logic;
-    signal porte_fermee : std_logic;
-    signal debut : std_logic;
-    signal fonctionnement : std_logic;
-    signal fin : std_logic;
-    signal une_seconde : std_logic;
-    signal vingt_milliseconde : std_logic;
-    signal magnetron : std_logic;
-    signal decalage : std_logic;
+    signal start_stop : bit;
+    signal bnt_G : bit;
+    signal btn_D : bit;
+    signal btn_C : bit;
+    signal btn_H : bit;
+    signal btn_B : bit;
+    signal porte_fermee : bit;
+    signal debut : bit;
+    signal fonctionnement : bit;
+    signal fin : bit;
+    signal une_seconde : bit;
+    signal vingt_milliseconde : bit;
+    signal magnetron : bit;
+    signal decalage : bit;
     
-    signal seconde : integer range 0 to 5999;
+    signal secondes : integer range 0 to 5999;
     signal dizaine_minute : integer range 0 to 9;
     signal unite_minute : integer range 0 to 9;
     signal dizaine_seconde : integer range 0 to 5;
@@ -227,6 +227,8 @@ p_buzzer : process(seconde, decalage)
                 while seconde > 0 loop
                     decalage <= seconde -1;
                     if decalage == -1 and seconde == 0 then
+                        buzzer <= 1 
+                        
                         
                     
                 
