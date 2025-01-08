@@ -111,6 +111,8 @@ architecture Structural of micro-ondes is
     signal fin : std_logic;
     signal une_seconde : std_logic;
     signal vingt_milliseconde : std_logic;
+    signal magnetron : std_logic;
+    signal decalage : std_logic;
     
     signal seconde : integer range 0 to 5999;
     signal dizaine_minute : integer range 0 to 9;
@@ -190,6 +192,51 @@ begin
                     seconde <= seconde + 1;
                 end if;
             end process p_config_chrono;
+
+---------------------------------------------------------------
+-- Configuration du fonctionnement du micro-ondes
+---------------------------------------------------------------
+
+p_fonctionnement_micro_ondes : process(seconde, clk_i, debut, une_seconde)
+            begin
+                if rising_edge(clk_i) then
+                    if debut = '1' then
+                        if une_seconde = '1' then
+                            if seconde > 0 then
+                                magnetron <= '1';
+                                seconde <= seconde - 1;
+                            else
+                                magnetron <= '0';
+                            end if;
+                        end if;
+                    else
+                        magnetron <= '0';
+                    end if;
+                end if;
+            end process p_fonctionnement_micro_ondes;
+
+
+---------------------------------------------------------------
+-- Configuration du buzzer
+---------------------------------------------------------------
+
+
+p_buzzer : process(seconde, decalage)
+            begin
+                decalage <= seconde - 1
+                while seconde > 0 loop
+                    decalage <= seconde -1;
+                    if decalage == -1 and seconde == 0 then
+                        
+                    
+                
+                
+
+                    
+
+                    
+                        
+                            
                 
 
 
