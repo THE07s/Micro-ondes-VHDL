@@ -95,6 +95,9 @@ entity micro_ondes is
         btn_bas_i                       : in  bit;
         led_magnetron_o                 : out bit_vector(15 downto 0);
         led_buzzer_o                    : out bit_vector(15 downto 0);
+        disp_segments_n_o               : out std_logic_vector(0 to 6);
+        disp_point_n_o                  : out std_logic;
+        disp_select_n_o                 : out std_logic_vector(3 down to 0);
     );
 end micro_ondes;
 
@@ -120,8 +123,10 @@ architecture Structural of micro_ondes is
     signal secondes                     : integer range 0 to 5999;
     signal dizaine_minute               : integer range 0 to 9;
     signal unite_minute                 : integer range 0 to 9;
+    signal minute                       : integer range 0 to 9; --servivra pour le convertisseur
     signal dizaine_seconde              : integer range 0 to 5;
     signal unite_seconde                : integer range 0 to 9;
+    signal seconde                      : integer range 0 to 9; --servivra pour le convertisseur
     signal port_afficheur               : integer range 0 to 3;
     signal valeur_afficheur             : integer range 0 to 9;
 
@@ -149,7 +154,7 @@ begin
             reset_i => '0',
             inc_i   => '1',
             value_o => open,
-            cycle_o => une_seconde
+            cycle_o => clk_slow_1s
         );
 ---------------------------------------------------------------    
 -- Divider 20ms
@@ -163,58 +168,55 @@ begin
             reset_i => '0',
             inc_i   => '1',
             value_o => open,
-            cycle_o => une_seconde
+            cycle_o => clk_slow_20ms
         );
 ---------------------------------------------------------------
 -- Vérification fermeture porte
 ---------------------------------------------------------------
-
     p_porte : process(switches_i(15))
-        begin
-            if switches_i(15) then
-                porte_fermee <= 1;
-            else 
-                porte_fermee <= 0;
-            end if;
-        end process p_porte;
+    begin
+        if switches_i(15) = '1' then
+            porte_fermee <= '1';
+        else 
+            porte_fermee <= '0';
+        end if;
+    end process p_porte;
 ---------------------------------------------------------------
 -- Bouton de démarrage
 ---------------------------------------------------------------
-    p_start_stop : process(btn_C)
-        begin
-            if btn_C then
-                 start_stop <= 1;
-            else
-                start_stop <=0;
-            end if;
-        end process p_start_stop;
+    p_start_stop : process(btn_center_i)
+    begin
+        if btn_center_i = '1' then
+            start_stop <= '1';
+        else
+            start_stop <= '0';
+        end if;
+    end process p_start_stop;
 ---------------------------------------------------------------
--- autorisation fonctionnement
+-- Autorisation fonctionnement
 ---------------------------------------------------------------
     p_autorisation : process(start_stop, porte_fermee)
-        begin
-            if start_stop and porte_fermee then
-                debut <= 1;
-            else
-                debut <= 0;
-            end if;
-        end process p_autorisation;
+    begin
+        if start_stop = '1' and porte_fermee = '1' then
+            debut <= '1';
+        else
+            debut <= '0';
+        end if;
+    end process p_autorisation;
 ---------------------------------------------------------------
 -- Configuration du chronomètre
 ---------------------------------------------------------------
-    p_config_chrono : process(btn_G, btn_D)
-            begin
-                if btn_G and seconde > 0 then
-                    seconde <= seconde - 1;
-                elsif btn_D and seconde < 5999 then
-                    seconde <= seconde + 1;
-                end if;
-            end process p_config_chrono;
-
+    p_config_chrono : process(btn_gauche_i, btn_droite_i)
+    begin
+        if btn_gauche_i = '1' and secondes > 30 then
+            secondes <= secondes - 30;
+        elsif btn_droite_i = '1' and secondes < 5969 then
+            secondes <= secondes + 30;
+        end if;
+    end process p_config_chrono;
 ---------------------------------------------------------------
 -- Configuration du fonctionnement du micro-ondes
 ---------------------------------------------------------------
-
 p_fonctionnement_micro_ondes : process(seconde, clk_i, debut, une_seconde)
             begin
                 if rising_edge(clk_i) then
@@ -244,6 +246,7 @@ p_buzzer : process(clk_i, une_seconde, seconde)
                 decalage <= seconde - 1;
                 if rising_edge(clk_i) then
                     if une_seconde = '1' then
+                    decalage <= decalage -1;
                         if seconde = 0 and decalage = '-1' then
                             if buzzer_actif = '0' then
                                 buzzer_actif <= '1';
@@ -259,6 +262,27 @@ p_buzzer : process(clk_i, une_seconde, seconde)
                     end if;
                 end if;
             end process p_buzzer;
+
+---------------------------------------------------------------
+-- Configuration du Convertisseur
+---------------------------------------------------------------
+
+p_convertisseur : process (seconde)
+            begin
+                if secondes != 0 then
+                    minute <= secondes * 34/2048;
+                    seconde <= secondes - minute*60;
+                    dizaine_minute <= minute +204/2048;
+                    unite_minute <= minute - dizaine_minute * 10;
+                    dizaine_seconde <= seconde * 204/2048;
+                    unite_seconde <= seconde - dizaine_seconde*10;
+                end if;
+            end process p_convertisseur;
+
+
+
+
+
                         
 
 
