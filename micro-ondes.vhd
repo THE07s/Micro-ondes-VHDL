@@ -83,46 +83,51 @@ end TruthTable;
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity micro-ondes is
+entity micro_ondes is
+    -- Décalaration des ports :
     port(
-        clk_i             : in  bit;
-        switches_i        : in  bit_vector(15 downto 0);
-        btn_gauche_i      : in  bit;
-        btn_center_i      : in  bit;
-        btn_droite_i      : in  bit;
-        btn_haut_i        : in  bit;
-        btn_bas_i         : in  bit;
-        led_magnetron_o   : out bit_vector(15 downto 0);
-        led_buzzer_o      : out bit_vector(15 downto 0);
+        clk_i                           : in  bit;
+        switches_i                      : in  bit_vector(15 downto 0);
+        btn_gauche_i                    : in  bit;
+        btn_center_i                    : in  bit;
+        btn_droite_i                    : in  bit;
+        btn_haut_i                      : in  bit;
+        btn_bas_i                       : in  bit;
+        led_magnetron_o                 : out bit_vector(15 downto 0);
+        led_buzzer_o                    : out bit_vector(15 downto 0);
     );
-end micro-ondes;
+end micro_ondes;
 
-architecture Structural of micro-ondes is
-    -- Declarations
-    signal start_stop : bit;
-    signal bnt_G : bit;
-    signal btn_D : bit;
-    signal btn_C : bit;
-    signal btn_H : bit;
-    signal btn_B : bit;
-    signal porte_fermee : bit;
-    signal debut : bit;
-    signal fonctionnement : bit;
-    signal fin : bit;
-    signal une_seconde : bit;
-    signal vingt_milliseconde : bit;
-    signal magnetron : bit;
-    signal decalage : bit;
+architecture Structural of micro_ondes is
+    -- Déclaration des signaux :
+    signal start_stop                   : bit;
+    signal bnt_G                        : bit;
+    signal btn_D                        : bit;
+    signal btn_C                        : bit;
+    signal btn_H                        : bit;
+    signal btn_B                        : bit;
+    signal porte_fermee                 : bit;
+    signal debut                        : bit;
+    signal fonctionnement               : bit;
+    signal fin                          : bit;
+    signal une_seconde                  : bit;
+    signal vingt_milliseconde           : bit;
+    signal magnetron                    : bit;
+    signal decalage                     : bit;
+    signal buzzer_actif                 : bit := '0';
     
-    signal secondes : integer range 0 to 5999;
-    signal dizaine_minute : integer range 0 to 9;
-    signal unite_minute : integer range 0 to 9;
-    signal dizaine_seconde : integer range 0 to 5;
-    signal unite_seconde : integer range 0 to 9;
-    signal port_afficheur : integer range 0 to 3;
-    signal valeur_afficheur : integer range 0 to 9;
+    signal compteur_buzzer              : integer range 0 to 3 := 0;
+    signal secondes                     : integer range 0 to 5999;
+    signal dizaine_minute               : integer range 0 to 9;
+    signal unite_minute                 : integer range 0 to 9;
+    signal dizaine_seconde              : integer range 0 to 5;
+    signal unite_seconde                : integer range 0 to 9;
+    signal port_afficheur               : integer range 0 to 3;
+    signal valeur_afficheur             : integer range 0 to 9;
 
-    -- signal clk_slow                : std_logic;
+    signal clk_slow_1s                  : bit;
+    signal clk_slow_20ms                : bit;
+
     -- signal start_stop              : integer range 0 to 15;
     -- signal configuration_chrono    : integer range 0 to 15;
     -- signal fonctionnement          : std_logic;
@@ -130,8 +135,7 @@ architecture Structural of micro-ondes is
     -- signal et                      : std_logic;
     -- signal score_hit               : integer range 0 to 9;
     -- signal score_miss              : integer range 0 to 9;
-    
-    
+
 begin
 ---------------------------------------------------------------    
 -- Divider 1s
@@ -146,7 +150,21 @@ begin
             inc_i   => '1',
             value_o => open,
             cycle_o => une_seconde
-        );    
+        );
+---------------------------------------------------------------    
+-- Divider 20ms
+---------------------------------------------------------------
+    divider_20ms_inst : entity work.CounterModN(Behavioral)
+        generic map(
+            N => 2e6
+        )
+        port map(
+            clk_i   => clk_i,
+            reset_i => '0',
+            inc_i   => '1',
+            value_o => open,
+            cycle_o => une_seconde
+        );
 ---------------------------------------------------------------
 -- Vérification fermeture porte
 ---------------------------------------------------------------
@@ -221,13 +239,29 @@ p_fonctionnement_micro_ondes : process(seconde, clk_i, debut, une_seconde)
 ---------------------------------------------------------------
 
 
-p_buzzer : process(seconde, decalage)
+p_buzzer : process(clk_i, une_seconde, seconde)
             begin
-                decalage <= seconde - 1
-                while seconde > 0 loop
-                    decalage <= seconde -1;
-                    if decalage == -1 and seconde == 0 then
-                        buzzer <= 1 
+                decalage <= seconde - 1;
+                if rising_edge(clk_i) then
+                    if une_seconde = '1' then
+                        if seconde = 0 and decalage = '-1' then
+                            if buzzer_actif = '0' then
+                                buzzer_actif <= '1';
+                                compteur_buzzer <= 0;
+                            elsif buzzer_actif = '1' then
+                                if compteur_buzzer < 3 then
+                                    compteur_buzzer <= compteur_buzzer + 1;
+                                else
+                                    buzzer_actif <= '0';
+                                end if;
+                            end if;
+                        end if;
+                    end if;
+                end if;
+            end process p_buzzer;
+                        
+
+
                         
                         
                     
