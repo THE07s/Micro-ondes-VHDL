@@ -85,15 +85,15 @@ use ieee.std_logic_1164.all;
 
 entity micro-ondes is
     port(
-        clk_i             : in  std_logic;
-        switches_i        : in  std_logic_vector(15 downto 0);
-        btn_gauche_i      : in  std_logic;
-        btn_center_i      : in  std_logic;
-        btn_droite_i      : in  std_logic;
-        btn_haut_i        : in  std_logic;
-        btn_bad_i         : in  std_logic;
-        led_magnetron_o   : out std_logic;
-        led_buzzer_o      : out std_logic
+        clk_i             : in  bit;
+        switches_i        : in  bit_vector(15 downto 0);
+        btn_gauche_i      : in  bit;
+        btn_center_i      : in  bit;
+        btn_droite_i      : in  bit;
+        btn_haut_i        : in  bit;
+        btn_bas_i         : in  bit;
+        led_magnetron_o   : out bit_vector(15 downto 0);
+        led_buzzer_o      : out bit_vector(15 downto 0);
     );
 end micro-ondes;
 
