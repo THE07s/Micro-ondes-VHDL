@@ -88,13 +88,12 @@ entity micro_ondes is
     port(
         clk_i                           : in  std_logic;
         switches_i                      : in  std_logic_vector(15 downto 0);
-        btn_gauche_i                    : in  std_logic;
+        btn_left_i                      : in  std_logic;
         btn_center_i                    : in  std_logic;
-        btn_droite_i                    : in  std_logic;
-        btn_haut_i                      : in  std_logic;
-        btn_bas_i                       : in  std_logic;
-        led_magnetron_o                 : out std_logic_vector(15 downto 0);
-        led_buzzer_o                    : out std_logic_vector(15 downto 0);
+        btn_right_i                     : in  std_logic;
+        btn_up_i                        : in  std_logic;
+        btn_down_i                      : in  std_logic;
+        led_o                           : out std_logic_vector(15 downto 0);
         disp_segments_n_o               : out std_logic_vector(6 downto 0);
         disp_point_n_o                  : out std_logic;
         disp_select_n_o                 : out std_logic_vector(3 downto 0)
@@ -193,12 +192,12 @@ begin
 ---------------------------------------------------------------
 -- Configuration du chronomètre
 ---------------------------------------------------------------
-    p_config_chrono : process(btn_gauche_i, btn_droite_i)
+    p_config_chrono : process(btn_left_i, btn_right_i)
     begin
-        if btn_gauche_i = '1' and secondes > 29 then
+        if btn_left_i = '1' and secondes > 29 then
             secondes <= secondes - 30;
             secondes_decalees <= secondes + 1;
-        elsif btn_droite_i = '1' and secondes < 5970 then
+        elsif btn_right_i = '1' and secondes < 5970 then
             secondes <= secondes + 30;
             secondes_decalees <= secondes + 1;
         end if;
@@ -296,7 +295,7 @@ begin
         end if;
     end process p_selection_afficheur;
 
-led_magnetron_o <= (others => magnetron);
-led_buzzer_o <= (others => buzzer_actif);
+led_o <= (others => magnetron);
+led_o <= (others => buzzer_actif);
 
 end Structural;
