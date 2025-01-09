@@ -82,6 +82,7 @@ end TruthTable;
 --*****************************************************************************
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 entity micro_ondes is
     port(
@@ -96,7 +97,7 @@ entity micro_ondes is
         led_buzzer_o                    : out std_logic_vector(15 downto 0);
         disp_segments_n_o               : out std_logic_vector(6 downto 0);
         disp_point_n_o                  : out std_logic;
-        disp_select_n_o                 : out std_logic_vector(3 downto 0);
+        disp_select_n_o                 : out std_logic_vector(3 downto 0)
     );
 end micro_ondes;
 
@@ -109,6 +110,8 @@ architecture Structural of micro_ondes is
     signal magnetron                    : std_logic;
     signal buzzer_actif                 : std_logic := '0';
     signal compteur_buzzer              : integer range 0 to 3 := 0;
+    signal seconde                      : integer;
+    signal minute                       : integer;
     signal secondes                     : integer range 0 to 5999;
     signal secondes_decalees            : integer range 0 to 5999 := 0;
     signal dizaine_minute               : integer range 0 to 9;
@@ -241,7 +244,7 @@ begin
 ---------------------------------------------------------------
 -- Configuration du Convertisseur
 ---------------------------------------------------------------
-    p_convertisseur : process (seconde)
+    p_convertisseur : process (secondes)
     begin
         if secondes /= 0 then
             minute <= (secondes * 34 / 64);
@@ -289,7 +292,7 @@ begin
     p_selection_afficheur : process(clk_slow_20ms)
     begin
         if rising_edge(clk_slow_20ms) then
-            afficheur_selection <= afficheur_selection + 1;
+            afficheur_selection <= std_logic_vector( unsigned(afficheur_selection) + 1 );
         end if;
     end process p_selection_afficheur;
 
