@@ -93,7 +93,7 @@ entity micro_ondes is
         btn_right_i                     : in  std_logic;
         btn_up_i                        : in  std_logic;
         btn_down_i                      : in  std_logic;
-        led_o                           : out std_logic_vector(15 downto 0);
+        leds_o                           : out std_logic_vector(15 downto 0);
         disp_segments_n_o               : out std_logic_vector(6 downto 0);
         disp_point_n_o                  : out std_logic;
         disp_select_n_o                 : out std_logic_vector(3 downto 0)
@@ -295,7 +295,7 @@ begin
         end if;
     end process p_selection_afficheur;
 
-led_o <= (others => magnetron);
-led_o <= (others => buzzer_actif);
+leds_o <= (others => magnetron);
+leds_o <= (others => buzzer_actif);
 
 end Structural;
