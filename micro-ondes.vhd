@@ -113,7 +113,6 @@ architecture Structural of micro_ondes is
     signal debut                        : bit;
     signal fonctionnement               : bit;
     signal fin                          : bit;
-    signal une_seconde                  : bit;
     signal vingt_milliseconde           : bit;
     signal magnetron                    : bit;
     signal decalage                     : bit;
@@ -123,10 +122,10 @@ architecture Structural of micro_ondes is
     signal secondes                     : integer range 0 to 5999;
     signal dizaine_minute               : integer range 0 to 9;
     signal unite_minute                 : integer range 0 to 9;
-    signal minute                       : integer range 0 to 9; --servivra pour le convertisseur
+    signal minute                       : integer range 0 to 9; -- servivra pour le convertisseur
     signal dizaine_seconde              : integer range 0 to 5;
     signal unite_seconde                : integer range 0 to 9;
-    signal seconde                      : integer range 0 to 9; --servivra pour le convertisseur
+    signal seconde                      : integer range 0 to 9; -- servivra pour le convertisseur
     signal port_afficheur               : integer range 0 to 3;
     signal valeur_afficheur             : integer range 0 to 9;
 
@@ -314,72 +313,72 @@ p_convertisseur : process (seconde)
 
 
         
----------------------------------------------------------------
--- Compteur de score
----------------------------------------------------------------
-    p_counter : process(clk_slow)
-        begin
-            if rising_edge(clk_slow) then
-                if led_index = 15 then
-                    led_index <= 0;
-                else
-                    led_index <= led_index + 1;
-                end if;
-            end if;
-         end process p_counter;   
+-- ---------------------------------------------------------------
+-- -- Compteur de score
+-- ---------------------------------------------------------------
+--     p_counter : process(clk_slow)
+--         begin
+--             if rising_edge(clk_slow) then
+--                 if led_index = 15 then
+--                     led_index <= 0;
+--                 else
+--                     led_index <= led_index + 1;
+--                 end if;
+--             end if;
+--          end process p_counter;   
 
          
-    p_decoder : process(clk_slow, led_index)
-        begin
-            led_o(led_index) <= '1';
-            if rising_edge(clk_slow) then
-                led_o(led_index) <= '0';
-            end if;
-        end process p_decoder;
+--     p_decoder : process(clk_slow, led_index)
+--         begin
+--             led_o(led_index) <= '1';
+--             if rising_edge(clk_slow) then
+--                 led_o(led_index) <= '0';
+--             end if;
+--         end process p_decoder;
         
-    p_marteau : process(switches_i)
-        begin
-            btn_index <= 0;
-            for i in 0 to 15 loop
-                if switches_i(i) = '1' then
-                    btn_index <= i;
-                end if;
-            end loop;
-        end process;
+--     p_marteau : process(switches_i)
+--         begin
+--             btn_index <= 0;
+--             for i in 0 to 15 loop
+--                 if switches_i(i) = '1' then
+--                     btn_index <= i;
+--                 end if;
+--             end loop;
+--         end process;
         
-    p_comparator : process(led_index, btn_index)
-        begin
-            if led_index = btn_index then
-                hit <= '1';
-            else
-                miss <= '1';
-            end if;
-        end process p_comparator;
+--     p_comparator : process(led_index, btn_index)
+--         begin
+--             if led_index = btn_index then
+--                 hit <= '1';
+--             else
+--                 miss <= '1';
+--             end if;
+--         end process p_comparator;
     
-    p_score : process(btn_center_i, hit, miss, reset, score_hit, score_miss)
-        begin
-            if reset = '1' or btn_center_i = '1' then
-                score_hit <= 0;
-                score_miss <= 0;
-            elsif score_hit + score_miss = 9 then
-                reset <= '1';
-            elsif hit = '1' then
-                score_hit <= score_hit + 1;
+--     p_score : process(btn_center_i, hit, miss, reset, score_hit, score_miss)
+--         begin
+--             if reset = '1' or btn_center_i = '1' then
+--                 score_hit <= 0;
+--                 score_miss <= 0;
+--             elsif score_hit + score_miss = 9 then
+--                 reset <= '1';
+--             elsif hit = '1' then
+--                 score_hit <= score_hit + 1;
 
-            elsif miss = '1' then
-                score_miss <= score_hit + 1;
-            end if;
-        end process p_score;
+--             elsif miss = '1' then
+--                 score_miss <= score_hit + 1;
+--             end if;
+--         end process p_score;
     
-    decoder_hit_inst : entity work.SegmentDecoder(TruthTable)
-        port map(
-            digit_i => score_hit,
-            segments_o => hit_o
-        );
+--     decoder_hit_inst : entity work.SegmentDecoder(TruthTable)
+--         port map(
+--             digit_i => score_hit,
+--             segments_o => hit_o
+--         );
 
-    decoder_miss_inst : entity work.SegmentDecoder(TruthTable)
-        port map(
-            digit_i => score_miss,
-            segments_o => miss_o
-        );
+--     decoder_miss_inst : entity work.SegmentDecoder(TruthTable)
+--         port map(
+--             digit_i => score_miss,
+--             segments_o => miss_o
+--         );
 end Structural;
