@@ -49,7 +49,7 @@ use ieee.std_logic_1164.all;
 entity SegmentDecoder is
     port(
         digit_i    : in  natural range 0 to 15;
-        segments_o : out std_logic_vector(0 to 6)
+        segments_o : out std_logic_vector(6 downto 0)
     );
 end SegmentDecoder;
 
@@ -84,61 +84,41 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity micro_ondes is
-    -- Décalaration des ports :
     port(
-        clk_i                           : in  bit;
-        switches_i                      : in  bit_vector(15 downto 0);
-        btn_gauche_i                    : in  bit;
-        btn_center_i                    : in  bit;
-        btn_droite_i                    : in  bit;
-        btn_haut_i                      : in  bit;
-        btn_bas_i                       : in  bit;
-        led_magnetron_o                 : out bit_vector(15 downto 0);
-        led_buzzer_o                    : out bit_vector(15 downto 0);
-        disp_segments_n_o               : out std_logic_vector(0 to 6);
+        clk_i                           : in  std_logic;
+        switches_i                      : in  std_logic_vector(15 downto 0);
+        btn_gauche_i                    : in  std_logic;
+        btn_center_i                    : in  std_logic;
+        btn_droite_i                    : in  std_logic;
+        btn_haut_i                      : in  std_logic;
+        btn_bas_i                       : in  std_logic;
+        led_magnetron_o                 : out std_logic_vector(15 downto 0);
+        led_buzzer_o                    : out std_logic_vector(15 downto 0);
+        disp_segments_n_o               : out std_logic_vector(6 downto 0);
         disp_point_n_o                  : out std_logic;
-        disp_select_n_o                 : out std_logic_vector(3 down to 0);
+        disp_select_n_o                 : out std_logic_vector(3 downto 0);
     );
 end micro_ondes;
 
 architecture Structural of micro_ondes is
-    -- Déclaration des signaux :
-    signal start_stop                   : bit;
-    signal bnt_G                        : bit;
-    signal btn_D                        : bit;
-    signal btn_C                        : bit;
-    signal btn_H                        : bit;
-    signal btn_B                        : bit;
-    signal porte_fermee                 : bit;
-    signal debut                        : bit;
-    signal fonctionnement               : bit;
-    signal fin                          : bit;
-    signal vingt_milliseconde           : bit;
-    signal magnetron                    : bit;
-    signal decalage                     : bit;
-    signal buzzer_actif                 : bit := '0';
-    
+    signal porte_fermee                 : std_logic;
+    signal debut                        : std_logic;
+    signal fonctionnement               : std_logic := '0';
+    signal pause                        : std_logic := '0';
+    signal fin                          : std_logic;
+    signal magnetron                    : std_logic;
+    signal buzzer_actif                 : std_logic := '0';
     signal compteur_buzzer              : integer range 0 to 3 := 0;
     signal secondes                     : integer range 0 to 5999;
+    signal secondes_decalees            : integer range 0 to 5999 := 0;
     signal dizaine_minute               : integer range 0 to 9;
     signal unite_minute                 : integer range 0 to 9;
-    signal minute                       : integer range 0 to 9; -- servivra pour le convertisseur
     signal dizaine_seconde              : integer range 0 to 5;
     signal unite_seconde                : integer range 0 to 9;
-    signal seconde                      : integer range 0 to 9; -- servivra pour le convertisseur
-    signal port_afficheur               : integer range 0 to 3;
+    signal clk_slow_1s                  : std_logic;
+    signal clk_slow_20ms                : std_logic;
+    signal afficheur_selection          : std_logic_vector(1 downto 0) := "00";
     signal valeur_afficheur             : integer range 0 to 9;
-
-    signal clk_slow_1s                  : bit;
-    signal clk_slow_20ms                : bit;
-
-    -- signal start_stop              : integer range 0 to 15;
-    -- signal configuration_chrono    : integer range 0 to 15;
-    -- signal fonctionnement          : std_logic;
-    -- signal convertisseur           : std_logic;
-    -- signal et                      : std_logic;
-    -- signal score_hit               : integer range 0 to 9;
-    -- signal score_miss              : integer range 0 to 9;
 
 begin
 ---------------------------------------------------------------    
@@ -172,31 +152,36 @@ begin
 ---------------------------------------------------------------
 -- Vérification fermeture porte
 ---------------------------------------------------------------
-    p_porte : process(switches_i(15))
+    p_porte : process(switches_i(15), pause)
     begin
-        if switches_i(15) = '1' then
-            porte_fermee <= '1';
-        else 
+        if switches_i(15) = '0' then
             porte_fermee <= '0';
+            pause <= '1';
+        else
+            porte_fermee <= '1';
         end if;
     end process p_porte;
 ---------------------------------------------------------------
--- Bouton de démarrage
+-- Bouton de démarrage et pause
 ---------------------------------------------------------------
-    p_start_stop : process(btn_center_i)
+    p_start_stop : process(btn_center_i, fonctionnement)
     begin
         if btn_center_i = '1' then
-            start_stop <= '1';
-        else
-            start_stop <= '0';
+            if fonctionnement = '1' then
+                fonctionnement <= '0';
+                pause <= '1';
+            else
+                fonctionnement <= '1';
+                pause <= '0';
+            end if;
         end if;
     end process p_start_stop;
 ---------------------------------------------------------------
 -- Autorisation fonctionnement
 ---------------------------------------------------------------
-    p_autorisation : process(start_stop, porte_fermee)
+    p_autorisation : process(fonctionnement, pause, porte_fermee)
     begin
-        if start_stop = '1' and porte_fermee = '1' then
+        if fonctionnement = '1' and pause = '0' and porte_fermee = '1' then
             debut <= '1';
         else
             debut <= '0';
@@ -207,178 +192,108 @@ begin
 ---------------------------------------------------------------
     p_config_chrono : process(btn_gauche_i, btn_droite_i)
     begin
-        if btn_gauche_i = '1' and secondes > 30 then
+        if btn_gauche_i = '1' and secondes > 29 then
             secondes <= secondes - 30;
-        elsif btn_droite_i = '1' and secondes < 5969 then
+            secondes_decalees <= secondes + 1;
+        elsif btn_droite_i = '1' and secondes < 5970 then
             secondes <= secondes + 30;
+            secondes_decalees <= secondes + 1;
         end if;
     end process p_config_chrono;
 ---------------------------------------------------------------
 -- Configuration du fonctionnement du micro-ondes
 ---------------------------------------------------------------
-p_fonctionnement_micro_ondes : process(seconde, clk_i, debut, une_seconde)
-            begin
-                if rising_edge(clk_i) then
-                    if debut = '1' then
-                        if une_seconde = '1' then
-                            if seconde > 0 then
-                                magnetron <= '1';
-                                seconde <= seconde - 1;
-                            else
-                                magnetron <= '0';
-                            end if;
-                        end if;
-                    else
+    p_fonctionnement_micro_ondes : process(clk_i, debut, clk_slow_1s)
+    begin
+        if rising_edge(clk_i) then
+            if debut = '1' then
+                if clk_slow_1s = '1' then
+                    if secondes > 0 and secondes_decalees > 1 then
+                        magnetron <= '1';
+                        secondes <= secondes - 1;
+                        secondes_decalees <= secondes_decalees - 1;
+                    elsif secondes_decalees = 1 and secondes = 0 then 
                         magnetron <= '0';
                     end if;
                 end if;
-            end process p_fonctionnement_micro_ondes;
-
-
+            end if;
+        end if;
+    end process p_fonctionnement_micro_ondes;
 ---------------------------------------------------------------
 -- Configuration du buzzer
 ---------------------------------------------------------------
-
-
-p_buzzer : process(clk_i, une_seconde, seconde)
-            begin
-                decalage <= seconde - 1;
-                if rising_edge(clk_i) then
-                    if une_seconde = '1' then
-                    decalage <= decalage -1;
-                        if seconde = 0 and decalage = '-1' then
-                            if buzzer_actif = '0' then
-                                buzzer_actif <= '1';
-                                compteur_buzzer <= 0;
-                            elsif buzzer_actif = '1' then
-                                if compteur_buzzer < 3 then
-                                    compteur_buzzer <= compteur_buzzer + 1;
-                                else
-                                    buzzer_actif <= '0';
-                                end if;
-                            end if;
-                        end if;
-                    end if;
+    p_buzzer : process(clk_i, clk_slow_1s, secondes, secondes_decalees)
+    begin
+        if rising_edge(clk_i) then
+            if clk_slow_1s = '1' and secondes_decalees = 1 and secondes = 0 then
+                buzzer_actif <= '1';
+                compteur_buzzer <= 0;
+            elsif buzzer_actif = '1' then
+                if clk_slow_1s = '1' and compteur_buzzer < 3 then
+                    compteur_buzzer <= compteur_buzzer + 1;
+                elsif compteur_buzzer = 3 then
+                    buzzer_actif <= '0';
                 end if;
-            end process p_buzzer;
-
+            end if;
+            secondes_decalees <= secondes;
+        end if;
+    end process p_buzzer;
 ---------------------------------------------------------------
 -- Configuration du Convertisseur
 ---------------------------------------------------------------
+    p_convertisseur : process (seconde)
+    begin
+        if secondes /= 0 then
+            minute <= (secondes * 34 / 64);
+            seconde <= secondes - (minute * 60);
+            dizaine_minute <= minute * 204 / 2048;
+            unite_minute <= minute - (dizaine_minute * 10);
+            dizaine_seconde <= seconde * 204 / 2048;
+            unite_seconde <= seconde - (dizaine_seconde * 10);
+        end if;
+    end process p_convertisseur;
+---------------------------------------------------------------
+-- MUX pour l'affichage
+---------------------------------------------------------------
+    p_affichage : process(clk_slow_20ms)
+    begin
+        case afficheur_selection is
+            when "00" => 
+                valeur_afficheur <= dizaine_minute;
+                disp_select_n_o <= "1110";
+            when "01" => 
+                valeur_afficheur <= unite_minute;
+                disp_select_n_o <= "1101";
+            when "10" => 
+                valeur_afficheur <= dizaine_seconde;
+                disp_select_n_o <= "1011";
+            when "11" => 
+                valeur_afficheur <= unite_seconde;
+                disp_select_n_o <= "0111";
+            when others =>
+                valeur_afficheur <= 0;
+                disp_select_n_o <= "1111";
+        end case;
+    end process p_affichage;
+---------------------------------------------------------------
+-- Décodage des segments pour l'affichage
+---------------------------------------------------------------
+    decoder_inst : entity work.SegmentDecoder(TruthTable)
+        port map(
+            digit_i => valeur_afficheur,
+            segments_o => disp_segments_n_o
+        );
+---------------------------------------------------------------
+-- Sélection cyclique des afficheurs
+---------------------------------------------------------------
+    p_selection_afficheur : process(clk_slow_20ms)
+    begin
+        if rising_edge(clk_slow_20ms) then
+            afficheur_selection <= afficheur_selection + 1;
+        end if;
+    end process p_selection_afficheur;
 
-p_convertisseur : process (seconde)
-            begin
-                if secondes != 0 then
-                    minute <= secondes * 34/2048;
-                    seconde <= secondes - minute*60;
-                    dizaine_minute <= minute +204/2048;
-                    unite_minute <= minute - dizaine_minute * 10;
-                    dizaine_seconde <= seconde * 204/2048;
-                    unite_seconde <= seconde - dizaine_seconde*10;
-                end if;
-            end process p_convertisseur;
+led_magnetron_o <= (others => magnetron);
+led_buzzer_o <= (others => buzzer_actif);
 
-
-
-
-
-                        
-
-
-                        
-                        
-                    
-                
-                
-
-                    
-
-                    
-                        
-                            
-                
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
--- ---------------------------------------------------------------
--- -- Compteur de score
--- ---------------------------------------------------------------
---     p_counter : process(clk_slow)
---         begin
---             if rising_edge(clk_slow) then
---                 if led_index = 15 then
---                     led_index <= 0;
---                 else
---                     led_index <= led_index + 1;
---                 end if;
---             end if;
---          end process p_counter;   
-
-         
---     p_decoder : process(clk_slow, led_index)
---         begin
---             led_o(led_index) <= '1';
---             if rising_edge(clk_slow) then
---                 led_o(led_index) <= '0';
---             end if;
---         end process p_decoder;
-        
---     p_marteau : process(switches_i)
---         begin
---             btn_index <= 0;
---             for i in 0 to 15 loop
---                 if switches_i(i) = '1' then
---                     btn_index <= i;
---                 end if;
---             end loop;
---         end process;
-        
---     p_comparator : process(led_index, btn_index)
---         begin
---             if led_index = btn_index then
---                 hit <= '1';
---             else
---                 miss <= '1';
---             end if;
---         end process p_comparator;
-    
---     p_score : process(btn_center_i, hit, miss, reset, score_hit, score_miss)
---         begin
---             if reset = '1' or btn_center_i = '1' then
---                 score_hit <= 0;
---                 score_miss <= 0;
---             elsif score_hit + score_miss = 9 then
---                 reset <= '1';
---             elsif hit = '1' then
---                 score_hit <= score_hit + 1;
-
---             elsif miss = '1' then
---                 score_miss <= score_hit + 1;
---             end if;
---         end process p_score;
-    
---     decoder_hit_inst : entity work.SegmentDecoder(TruthTable)
---         port map(
---             digit_i => score_hit,
---             segments_o => hit_o
---         );
-
---     decoder_miss_inst : entity work.SegmentDecoder(TruthTable)
---         port map(
---             digit_i => score_miss,
---             segments_o => miss_o
---         );
 end Structural;
