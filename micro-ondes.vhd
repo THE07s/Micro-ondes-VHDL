@@ -95,7 +95,7 @@ entity micro_ondes is
         btn_down_i                      : in  std_logic;
         leds_o                           : out std_logic_vector(15 downto 0);
         disp_segments_n_o               : out std_logic_vector(6 downto 0);
-        disp_point_n_o                  : out std_logic;
+        -- disp_point_n_o                  : out std_logic;
         disp_select_n_o                 : out std_logic_vector(3 downto 0)
     );
 end micro_ondes;
@@ -192,7 +192,7 @@ begin
 ---------------------------------------------------------------
 -- Configuration du chronomètre
 ---------------------------------------------------------------
-    p_config_chrono : process(btn_left_i, btn_right_i)
+    p_config_chrono : process(btn_left_i, btn_right_i, secondes)
     begin
         if btn_left_i = '1' and secondes > 29 then
             secondes <= secondes - 30;
@@ -216,6 +216,7 @@ begin
                         secondes_decalees <= secondes_decalees - 1;
                     elsif secondes_decalees = 1 and secondes = 0 then 
                         magnetron <= '0';
+                        secondes <= secondes;
                     end if;
                 end if;
             end if;
@@ -295,7 +296,6 @@ begin
         end if;
     end process p_selection_afficheur;
 
-leds_o <= (others => magnetron);
-leds_o <= (others => buzzer_actif);
+leds_o <= (others => magnetron OR buzzer_actif);
 
 end Structural;
