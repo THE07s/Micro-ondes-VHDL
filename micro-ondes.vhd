@@ -232,30 +232,29 @@ begin
                     compteur_buzzer <= 0;
                 end if;
             end if;
-
-            ----------------------------------------------------------------
-            --      CONVERSION SECONDES -> 4 QUARTETS -> AFFICHEUR        --
-            ----------------------------------------------------------------
-            minute              <= secondes / 60;
-            seconde             <= secondes mod 60;
-
-            dizaine_minute      <= minute / 10;
-            unite_minute        <= minute mod 10;
-
-            dizaine_seconde     <= seconde / 10;
-            unite_seconde       <= seconde mod 10;
-
         end if;
     end process p_fonctionnement_micro_ondes;
 
-    -------------------------------------------------------------------
-    --                       AFFECTATION LEDs                        --
-    -------------------------------------------------------------------
+----------------------------------------------------------------
+--      CONVERSION SECONDES -> 4 QUARTETS -> AFFICHEUR        --
+----------------------------------------------------------------
+    minute              <= secondes / 60;
+    seconde             <= secondes mod 60;
+
+    dizaine_minute      <= minute / 10;
+    unite_minute        <= minute mod 10;
+
+    dizaine_seconde     <= seconde / 10;
+    unite_seconde       <= seconde mod 10;
+
+-------------------------------------------------------------------
+--                       AFFECTATION LEDs                        --
+-------------------------------------------------------------------
     leds_o <= (others => magnetron OR buzzer_actif);
 
-    -------------------------------------------------------------------
-    --                      MUX POUR AFFICHEUR                       --
-    -------------------------------------------------------------------
+-------------------------------------------------------------------
+--                      MUX POUR AFFICHEUR                       --
+-------------------------------------------------------------------
     p_affichage : process(clk_slow_20ms)
     begin
         if rising_edge(clk_slow_20ms) then
@@ -277,9 +276,9 @@ begin
                             unite_minute    when "10",
                             dizaine_minute  when others;
 
-    -------------------------------------------------------------------
-    -- Implémentation de l'afficheur 7 segments :
-    -------------------------------------------------------------------
+-------------------------------------------------------------------
+-- Implémentation de l'afficheur 7 segments :
+-------------------------------------------------------------------
     decoder_inst : entity work.SegmentDecoder(TruthTable)
         port map(
             digit_i    => valeur_afficheur,
