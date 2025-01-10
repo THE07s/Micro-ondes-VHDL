@@ -248,18 +248,6 @@ begin
         end if;
     end process p_fonctionnement_micro_ondes;
 
-----------------------------------------------------------------
---      CONVERSION SECONDES -> 4 QUARTETS -> AFFICHEUR        --
-----------------------------------------------------------------
-    minute              <= secondes / 60;
-    seconde             <= secondes mod 60;
-
-    dizaine_minute      <= minute / 10;
-    unite_minute        <= minute mod 10;
-
-    dizaine_seconde     <= seconde / 10;
-    unite_seconde       <= seconde mod 10;
-
 -------------------------------------------------------------------
 --                       AFFECTATION LEDs                        --
 -------------------------------------------------------------------
@@ -271,7 +259,7 @@ begin
     p_affichage : process(clk_slow_20ms)
     begin
         if rising_edge(clk_slow_20ms) then
-            valeur_et_afficheur_selection <= std_logic_vector(unsigned(valeur_et_afficheur_selection) + 1 );
+            valeur_et_afficheur_selection <= std_logic_vector(unsigned(valeur_et_afficheur_selection) + 1);
         end if;
     end process p_affichage;
 
