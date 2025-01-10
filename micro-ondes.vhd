@@ -134,7 +134,8 @@ begin
 -- Implémentation des deux diviseurs de clock :
 -------------------------------------------------------------------
     divider_1s_inst : entity work.CounterModN(Behavioral)
-        generic map( N => 100e6 )
+        generic map( N => 50 --100e6 
+        )
         port map(
             clk_i   => clk_i,
             reset_i => '0',
@@ -144,7 +145,8 @@ begin
         );
 
     divider_20ms_inst : entity work.CounterModN(Behavioral)
-        generic map( N => 2e6 )
+        generic map( N => 2 --2e6 
+        )
         port map(
             clk_i   => clk_i,
             reset_i => '0',
@@ -236,17 +238,31 @@ begin
             ----------------------------------------------------------------
             --      CONVERSION SECONDES -> 4 QUARTETS -> AFFICHEUR        --
             ----------------------------------------------------------------
-            minute          <= secondes * 34 / 64;
+            minute          <= secondes / 60;
             seconde         <= secondes - (minute * 60);
-
-            dizaine_minute  <= minute * 204 / 2048;
+            
+            dizaine_seconde <= seconde / 10; --* 204 / 2048;
+            unite_seconde   <= seconde - (dizaine_seconde * 10);
+            
+            dizaine_minute  <= minute / 10;
             unite_minute    <= minute - (dizaine_minute * 10);
 
-            dizaine_seconde <= seconde * 204 / 2048;
-            unite_seconde   <= seconde - (dizaine_seconde * 10);
+
 
         end if;
     end process p_fonctionnement_micro_ondes;
+
+----------------------------------------------------------------
+--      CONVERSION SECONDES -> 4 QUARTETS -> AFFICHEUR        --
+----------------------------------------------------------------
+--    minute              <= secondes / 60;
+--    seconde             <= secondes mod 60;
+
+--    dizaine_minute      <= minute / 10;
+--    unite_minute        <= minute mod 10;
+
+--    dizaine_seconde     <= seconde / 10;
+--    unite_seconde       <= seconde mod 10;
 
 -------------------------------------------------------------------
 --                       AFFECTATION LEDs                        --
@@ -259,7 +275,7 @@ begin
     p_affichage : process(clk_slow_20ms)
     begin
         if rising_edge(clk_slow_20ms) then
-            valeur_et_afficheur_selection <= std_logic_vector(unsigned(valeur_et_afficheur_selection) + 1);
+            valeur_et_afficheur_selection <= std_logic_vector(unsigned(valeur_et_afficheur_selection) + 1 );
         end if;
     end process p_affichage;
 
