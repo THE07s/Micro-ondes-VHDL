@@ -236,14 +236,14 @@ begin
             ----------------------------------------------------------------
             --      CONVERSION SECONDES -> 4 QUARTETS -> AFFICHEUR        --
             ----------------------------------------------------------------
-            minute          <= secondes * 34 / 64;  -- division entière
-            seconde         <= secondes - (minute * 60);
+            minute              <= secondes / 60;
+            seconde             <= secondes mod 60;
 
-            dizaine_minute  <= minute * 204 / 2048;
-            unite_minute    <= minute - (dizaine_minute * 10);
+            dizaine_minute      <= minute / 10;
+            unite_minute        <= minute mod 10;
 
-            dizaine_seconde <= seconde * 204 / 2048;
-            unite_seconde   <= seconde - (dizaine_seconde * 10);
+            dizaine_seconde     <= seconde / 10;
+            unite_seconde       <= seconde mod 10;
 
         end if;
     end process p_fonctionnement_micro_ondes;
