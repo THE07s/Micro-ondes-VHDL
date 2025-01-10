@@ -232,6 +232,19 @@ begin
                     compteur_buzzer <= 0;
                 end if;
             end if;
+
+            ----------------------------------------------------------------
+            --      CONVERSION SECONDES -> 4 QUARTETS -> AFFICHEUR        --
+            ----------------------------------------------------------------
+            minute          <= secondes * 34 / 64;
+            seconde         <= secondes - (minute * 60);
+
+            dizaine_minute  <= minute * 204 / 2048;
+            unite_minute    <= minute - (dizaine_minute * 10);
+
+            dizaine_seconde <= seconde * 204 / 2048;
+            unite_seconde   <= seconde - (dizaine_seconde * 10);
+
         end if;
     end process p_fonctionnement_micro_ondes;
 
