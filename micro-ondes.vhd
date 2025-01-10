@@ -268,14 +268,14 @@ begin
         disp_select_n_o <= "1110"           when "00",
                            "1101"           when "01",
                            "1011"           when "10",
-                           "0111"           when "11";
+                           "0111"           when others;
 
     -- Sélection de la valeur à afficher :
     with valeur_et_afficheur_selection select
         valeur_afficheur <= unite_seconde   when "00",
                             dizaine_seconde when "01",
                             unite_minute    when "10",
-                            dizaine_minute  when "11";
+                            dizaine_minute  when others;
 
     -------------------------------------------------------------------
     -- Implémentation de l'afficheur 7 segments :
