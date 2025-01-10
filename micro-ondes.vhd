@@ -175,7 +175,7 @@ begin
             ----------------------------------------------------------------
             --              BOUTON START/STOP (btn_center_i)              --
             ----------------------------------------------------------------
-            if btn_center_i = '1' then
+            if btn_center_i = '1' and clk_slow_20ms = '1' then
                 if fonctionnement = '1' then
                     -- Charlie, on pause tout ça
                     fonctionnement <= '0';
@@ -190,12 +190,12 @@ begin
             ----------------------------------------------------------------
             --       CONFIGURATION CHRONO (btn_left_i, btn_right_i)       --
             ----------------------------------------------------------------
-            if btn_left_i = '1' then
+            if btn_left_i = '1' and clk_slow_20ms = '1' then
                 if secondes > 29 then
                     secondes <= secondes - 30; -- minimum atteignable de 0s
                     secondes_decalees <= secondes + 1;
                 end if;
-            elsif btn_right_i = '1' then
+            elsif btn_right_i = '1' and clk_slow_20ms = '1' then
                 if secondes < 5970 then
                     secondes <= secondes + 30; -- maximum atteignable de 99m59s
                     secondes_decalees <= secondes + 1;
@@ -251,18 +251,6 @@ begin
 
         end if;
     end process p_fonctionnement_micro_ondes;
-
-----------------------------------------------------------------
---      CONVERSION SECONDES -> 4 QUARTETS -> AFFICHEUR        --
-----------------------------------------------------------------
---    minute              <= secondes / 60;
---    seconde             <= secondes mod 60;
-
---    dizaine_minute      <= minute / 10;
---    unite_minute        <= minute mod 10;
-
---    dizaine_seconde     <= seconde / 10;
---    unite_seconde       <= seconde mod 10;
 
 -------------------------------------------------------------------
 --                       AFFECTATION LEDs                        --
