@@ -3,39 +3,39 @@
 -- CounterModN entity+archi
 --
 --*****************************************************************************
-library ieee;
-use ieee.std_logic_1164.all;
+    library ieee;
+    use ieee.std_logic_1164.all;
 
-entity CounterModN is
-    generic(
-        N : positive
-    );
-    port(
-        clk_i, reset_i, inc_i : in  std_logic;
-        value_o               : out integer range 0 to N - 1;
-        cycle_o               : out std_logic
-    );
-end CounterModN;
+    entity CounterModN is
+        generic(
+            N : positive
+        );
+        port(
+            clk_i, reset_i, inc_i : in  std_logic;
+            value_o               : out integer range 0 to N - 1;
+            cycle_o               : out std_logic
+        );
+    end CounterModN;
 
-architecture Behavioral of CounterModN is
-    signal value_reg, value_next : integer range 0 to N - 1;
-begin
-    p_value_reg : process(clk_i, reset_i)
+    architecture Behavioral of CounterModN is
+        signal value_reg, value_next : integer range 0 to N - 1;
     begin
-        if reset_i = '1' then
-            value_reg <= 0;
-        elsif rising_edge(clk_i) then
-            if inc_i = '1' then
-                value_reg <= value_next;
+        p_value_reg : process(clk_i, reset_i)
+        begin
+            if reset_i = '1' then
+                value_reg <= 0;
+            elsif rising_edge(clk_i) then
+                if inc_i = '1' then
+                    value_reg <= value_next;
+                end if;
             end if;
-        end if;
-    end process p_value_reg;
+        end process p_value_reg;
 
-    value_next <= 0 when value_reg = N - 1 else value_reg + 1;
+        value_next <= 0 when value_reg = N - 1 else value_reg + 1;
 
-    value_o <= value_reg;
-    cycle_o <= '1' when inc_i = '1' and value_reg = N - 1 else '0';
-end Behavioral;
+        value_o <= value_reg;
+        cycle_o <= '1' when inc_i = '1' and value_reg = N - 1 else '0';
+    end Behavioral;
 
 
 --*****************************************************************************
@@ -43,37 +43,76 @@ end Behavioral;
 -- SegmentDecoder entity+archi
 --
 --*****************************************************************************
-library ieee;
-use ieee.std_logic_1164.all;
+    library ieee;
+    use ieee.std_logic_1164.all;
 
-entity SegmentDecoder is
-    port(
-        digit_i    : in  natural range 0 to 15;
-        segments_o : out std_logic_vector(6 downto 0)
-    );
-end SegmentDecoder;
+    entity SegmentDecoder is
+        port(
+            digit_i    : in  natural range 0 to 15;
+            segments_o : out std_logic_vector(6 downto 0)
+        );
+    end SegmentDecoder;
 
-architecture TruthTable of SegmentDecoder is
-begin
-    with digit_i select
-        segments_o <= "1111110" when  0,
-                      "0110000" when  1,
-                      "1101101" when  2,
-                      "1111001" when  3,
-                      "0110011" when  4,
-                      "1011011" when  5,
-                      "1011111" when  6,
-                      "1110000" when  7,
-                      "1111111" when  8,
-                      "1111011" when  9,
-                      "1110111" when 10,
-                      "0011111" when 11,
-                      "1001110" when 12,
-                      "0111101" when 13,
-                      "1001111" when 14,
-                      "1000111" when 15;
-end TruthTable;
+    architecture TruthTable of SegmentDecoder is
+    begin
+        with digit_i select
+            segments_o <= "1111110" when  0,
+                        "0110000" when  1,
+                        "1101101" when  2,
+                        "1111001" when  3,
+                        "0110011" when  4,
+                        "1011011" when  5,
+                        "1011111" when  6,
+                        "1110000" when  7,
+                        "1111111" when  8,
+                        "1111011" when  9,
+                        "1110111" when 10,
+                        "0011111" when 11,
+                        "1001110" when 12,
+                        "0111101" when 13,
+                        "1001111" when 14,
+                        "1000111" when 15;
+    end TruthTable;
 
+--*****************************************************************************
+--
+-- EventDetector entity+archi
+--
+--*****************************************************************************
+    library ieee;
+    use ieee.std_logic_1164.all;
+
+    entity EventDetector is
+        generic(
+            DURATION : positive := 1
+        );
+        port(
+            clk_i     : in  std_logic;
+            src_i     : in  std_logic;
+            on_evt_o  : out std_logic;
+            off_evt_o : out std_logic;
+            status_o  : out std_logic
+        );
+    end EventDetector;
+
+    architecture Simple of EventDetector is
+        -- Declarations
+        signal src_reg : std_logic_vector(0 to 1) := "00";
+    begin
+
+    -- processus de fonctionnement par binaire pur
+    fonctionnement : process(clk_i)
+    begin
+    if rising_edge(clk_i) then
+        src_reg(0) <= src_i;
+        src_reg(1) <= src_reg(0);
+    end if;
+    end process fonctionnement;
+        -- Concurrent statements
+        on_evt_o <= src_reg(0) and not src_reg(1);
+        off_evt_o <= src_reg(1) and not src_reg(0);
+        status_o <= src_reg(0);
+    end Simple;
 
 --*****************************************************************************
 --
@@ -128,13 +167,17 @@ architecture Structural of micro_ondes is
 
     signal valeur_et_afficheur_selection    : std_logic_vector(1 downto 0) := "00";
     signal valeur_afficheur                 : integer range 0 to 9;
+    
+    signal btn_left_s                       :   std_logic;
+    signal btn_right_s                      :   std_logic;
+    signal btn_center_s                     :   std_logic;
 
 begin
 -------------------------------------------------------------------
 -- Implémentation des deux diviseurs de clock :
 -------------------------------------------------------------------
     divider_1s_inst : entity work.CounterModN(Behavioral)
-        generic map( N => 50 --100e6 
+        generic map( N => 100e6 
         )
         port map(
             clk_i   => clk_i,
@@ -145,7 +188,7 @@ begin
         );
 
     divider_20ms_inst : entity work.CounterModN(Behavioral)
-        generic map( N => 2 --2e6 
+        generic map( N => 2e6 
         )
         port map(
             clk_i   => clk_i,
@@ -155,6 +198,42 @@ begin
             cycle_o => clk_slow_20ms
         );
 
+    btn_left_detec : entity work.EventDetector(Simple)
+    generic map(
+        DURATION    => 1
+    )
+    port map(
+        clk_i   => clk_i,
+        src_i   => btn_left_i,
+        on_evt_o   => btn_left_s,
+        off_evt_o   => open,
+        status_o   => open
+    );
+    
+    btn_right_detec : entity work.EventDetector(Simple)
+    generic map(
+        DURATION    => 1
+    )
+    port map(
+        clk_i   => clk_i,
+        src_i   => btn_right_i,
+        on_evt_o   => btn_right_s,
+        off_evt_o   => open,
+        status_o   => open
+    );
+    
+    btn_center_detec : entity work.EventDetector(Simple)
+    generic map(
+        DURATION    => 1
+    )
+    port map(
+        clk_i   => clk_i,
+        src_i   => btn_center_i,
+        on_evt_o   => btn_center_s,
+        off_evt_o   => open,
+        status_o   => open
+    );
+    
 -------------------------------------------------------------------
 -- Process principal :
 -------------------------------------------------------------------
@@ -175,7 +254,7 @@ begin
             ----------------------------------------------------------------
             --              BOUTON START/STOP (btn_center_i)              --
             ----------------------------------------------------------------
-            if btn_center_i = '1' and clk_slow_20ms = '1' then
+            if btn_center_s = '1' and clk_slow_20ms = '1' then
                 if fonctionnement = '1' then
                     -- Charlie, on pause tout ça
                     fonctionnement <= '0';
@@ -190,12 +269,12 @@ begin
             ----------------------------------------------------------------
             --       CONFIGURATION CHRONO (btn_left_i, btn_right_i)       --
             ----------------------------------------------------------------
-            if btn_left_i = '1' and clk_slow_20ms = '1' then
+            if btn_left_s = '1' and clk_slow_20ms = '1' then
                 if secondes > 29 then
                     secondes <= secondes - 30; -- minimum atteignable de 0s
                     secondes_decalees <= secondes + 1;
                 end if;
-            elsif btn_right_i = '1' and clk_slow_20ms = '1' then
+            elsif btn_right_s = '1' and clk_slow_20ms = '1' then
                 if secondes < 5970 then
                     secondes <= secondes + 30; -- maximum atteignable de 99m59s
                     secondes_decalees <= secondes + 1;
