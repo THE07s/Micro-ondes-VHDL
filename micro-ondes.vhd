@@ -136,7 +136,7 @@ entity micro_ondes is
 
         leds_o                              : out std_logic_vector(15 downto 0);
 
-        disp_segments_n_o                   : out std_logic_vector(6 downto 0);
+        disp_segments_n_o                   : out std_logic_vector(0 to 6);
         disp_select_n_o                     : out std_logic_vector(3 downto 0)
     );
 end micro_ondes;
@@ -178,7 +178,7 @@ architecture Structural of micro_ondes is
     signal clk_very_slow                    : std_logic;
     signal clk_div                          : std_logic := '0';         -- Horloge divisée
     signal clk_counter                      : integer := 0;
-    constant DIV_FACTOR                     : integer := 100000;        -- Division de l'horloge
+    constant DIV_FACTOR                     : integer := 2e6;        -- Division de l'horloge
 
 begin
 -------------------------------------------------------------------
@@ -225,7 +225,7 @@ begin
 -------------------------------------------------------------------
     btn_left_detec : entity work.EventDetector(Simple)
     generic map(
-        DURATION    => 1
+        DURATION    => 10
     )
     port map(
         clk_i   => clk_i,
@@ -237,7 +237,7 @@ begin
     
     btn_right_detec : entity work.EventDetector(Simple)
     generic map(
-        DURATION    => 1
+        DURATION    => 10
     )
     port map(
         clk_i   => clk_i,
@@ -249,7 +249,7 @@ begin
     
     btn_center_detec : entity work.EventDetector(Simple)
     generic map(
-        DURATION    => 1
+        DURATION    => 10
     )
     port map(
         clk_i   => clk_i,
@@ -308,7 +308,7 @@ begin
             ----------------------------------------------------------------
             --              BOUTON START/STOP (btn_center_i)              --
             ----------------------------------------------------------------
-            if btn_center_s = '1' and clk_slow_20ms = '1' then
+            if btn_center_s = '1' then
                 if fonctionnement = '1' then
                     -- Charlie, on pause tout ça !
                     fonctionnement <= '0';
@@ -323,49 +323,51 @@ begin
             ----------------------------------------------------------------
             --       CONFIGURATION CHRONO (btn_left_i, btn_right_i)       --
             ----------------------------------------------------------------
-            if btn_left_s = '1' and clk_slow_20ms = '1' then
+            if btn_left_s = '1' then
                 if secondes > 29 then
                     secondes <= secondes - 30; -- minimum atteignable de 0s
                     secondes_decalees <= secondes + 1;
                 end if;
-            elsif btn_right_s = '1' and clk_slow_20ms = '1' then
+            elsif btn_right_s = '1' then
                 if secondes < 5970 then
                     secondes <= secondes + 30; -- maximum atteignable de 99m59s
                     secondes_decalees <= secondes + 1;
                 end if;
             end if;
 
-            ----------------------------------------------------------------
-            --                FONCTIONNEMENT MICRO-ONDES                  --
-            ----------------------------------------------------------------
-            if fonctionnement = '1' and pause = '0' and porte_fermee = '1' then
-                if clk_slow_1s = '1' then
-                    if secondes > 0 then
-                        magnetron <= '1';
-                        secondes  <= secondes - 1;
-                        secondes_decalees <= secondes_decalees - 1;
+            if clk_slow_1s = '1' then
+                ----------------------------------------------------------------
+                --                FONCTIONNEMENT MICRO-ONDES                  --
+                ----------------------------------------------------------------
+
+                    if fonctionnement = '1' and pause = '0' and porte_fermee = '1' then
+                        if secondes > 0 then
+                            magnetron <= '1';
+                            secondes  <= secondes - 1;
+                            secondes_decalees <= secondes_decalees - 1;
+                        else
+                            magnetron <= '0';
+                        end if;
                     else
                         magnetron <= '0';
                     end if;
-                end if;
-            else
-                magnetron <= '0';
-            end if;
 
-            ----------------------------------------------------------------
-            --                           BUZZER                           --
-            ----------------------------------------------------------------
-            if buzzer_actif = '1' then
-                if clk_slow_1s = '1' and compteur_buzzer < 3 then
-                    compteur_buzzer <= compteur_buzzer + 1;
-                elsif compteur_buzzer = 3 then
-                    buzzer_actif    <= '0';
-                end if;
-            else
-                if clk_slow_1s = '1' and secondes_decalees = 1 and secondes = 0 then
-                    buzzer_actif    <= '1';
-                    compteur_buzzer <= 0;
-                end if;
+
+                ----------------------------------------------------------------
+                --                           BUZZER                           --
+                ----------------------------------------------------------------      
+                    if buzzer_actif = '1' then
+                        if compteur_buzzer < 3 then
+                            compteur_buzzer <= compteur_buzzer + 1;
+                        elsif compteur_buzzer = 3 then
+                            buzzer_actif    <= '0';
+                        end if;
+                    else
+                        if secondes_decalees = 1 and secondes = 0 then
+                            buzzer_actif    <= '1';
+                            compteur_buzzer <= 0;
+                        end if;
+                    end if;
             end if;
 
             ----------------------------------------------------------------
@@ -388,12 +390,12 @@ begin
 -------------------------------------------------------------------
 --                      MUX POUR AFFICHEUR                       --
 -------------------------------------------------------------------
-    p_affichage : process(clk_slow_20ms)
-    begin
-        if rising_edge(clk_slow_20ms) then
-            valeur_et_afficheur_selection <= std_logic_vector(unsigned(valeur_et_afficheur_selection) + 1 );
-        end if;
-    end process p_affichage;
+    -- p_affichage : process(clk_slow_20ms)
+    -- begin
+    --     if rising_edge(clk_slow_20ms) then
+    --         valeur_et_afficheur_selection <= std_logic_vector(unsigned(valeur_et_afficheur_selection) + 1 );
+    --     end if;
+    -- end process p_affichage;
 
     -- Sélection de l'afficheur à piloter :
     --with valeur_et_afficheur_selection select
@@ -440,4 +442,4 @@ begin
             segments_o => segments
         );
 
-end Structural;
+    end Structural;
