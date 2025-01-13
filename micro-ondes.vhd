@@ -168,11 +168,33 @@ architecture Structural of micro_ondes is
     signal valeur_et_afficheur_selection    : std_logic_vector(1 downto 0) := "00";
     signal valeur_afficheur                 : integer range 0 to 9;
     
-    signal btn_left_s                       :   std_logic;
-    signal btn_right_s                      :   std_logic;
-    signal btn_center_s                     :   std_logic;
+    signal btn_left_s                       : std_logic;
+    signal btn_right_s                      : std_logic;
+    signal btn_center_s                     : std_logic;
+
+    -- Signaux ajoutés par Kenneth :
+    signal digit_index                      : integer range 0 to 3;
+    signal segments                         : std_logic_vector(0 to 6); -- Segments pour l'affichage
+    signal clk_very_slow                    : std_logic;
+    signal clk_div                          : std_logic := '0';         -- Horloge divisée
+    signal clk_counter                      : integer := 0;
+    constant DIV_FACTOR                     : integer := 100000;        -- Division de l'horloge
 
 begin
+-------------------------------------------------------------------
+-- Décalaration des instructions concurentes :
+-------------------------------------------------------------------
+    -------------------------------------------------------------------
+    --                       AFFECTATION LEDs                        --
+    -------------------------------------------------------------------
+        leds_o <= (others => magnetron OR buzzer_actif);
+
+    -------------------------------------------------------------------
+    --                    NÉGATION DES SEGMENTS                      --
+    -------------------------------------------------------------------
+        disp_segments_n_o <= not segments;
+
+
 -------------------------------------------------------------------
 -- Implémentation des deux diviseurs de clock :
 -------------------------------------------------------------------
@@ -198,6 +220,9 @@ begin
             cycle_o => clk_slow_20ms
         );
 
+-------------------------------------------------------------------
+-- Implémentation des anti-rebonds :
+-------------------------------------------------------------------
     btn_left_detec : entity work.EventDetector(Simple)
     generic map(
         DURATION    => 1
@@ -234,6 +259,35 @@ begin
         status_o   => open
     );
     
+--------------------------------------------------------------------------------
+-- Code ajouté par Kenneth
+--------------------------------------------------------------------------------
+    -- Division de l'horloge
+    process(clk_i)
+    begin
+        if rising_edge(clk_i) then
+            if clk_counter = DIV_FACTOR then
+                clk_div <= not clk_div;
+                clk_counter <= 0;
+            else
+                clk_counter <= clk_counter + 1;
+            end if;
+        end if;
+    end process;
+
+    -- Sélection de l'afficheur actif
+    process(clk_div)
+    begin
+        if rising_edge(clk_div) then
+            if digit_index = 3 then
+                digit_index <= 0;
+            else
+                digit_index <= digit_index + 1;
+            end if;
+        end if;
+    end process;
+
+
 -------------------------------------------------------------------
 -- Process principal :
 -------------------------------------------------------------------
@@ -256,11 +310,11 @@ begin
             ----------------------------------------------------------------
             if btn_center_s = '1' and clk_slow_20ms = '1' then
                 if fonctionnement = '1' then
-                    -- Charlie, on pause tout ça
+                    -- Charlie, on pause tout ça !
                     fonctionnement <= '0';
                     pause <= '1';
                 else
-                    -- Charlie, on remet tout en route
+                    -- Charlie, on remet tout en route !
                     fonctionnement <= '1';
                     pause <= '0';
                 end if;
@@ -332,11 +386,6 @@ begin
     end process p_fonctionnement_micro_ondes;
 
 -------------------------------------------------------------------
---                       AFFECTATION LEDs                        --
--------------------------------------------------------------------
-    leds_o <= (others => magnetron OR buzzer_actif);
-
--------------------------------------------------------------------
 --                      MUX POUR AFFICHEUR                       --
 -------------------------------------------------------------------
     p_affichage : process(clk_slow_20ms)
@@ -347,26 +396,48 @@ begin
     end process p_affichage;
 
     -- Sélection de l'afficheur à piloter :
-    with valeur_et_afficheur_selection select
-        disp_select_n_o <= "1110"           when "00",
-                           "1101"           when "01",
-                           "1011"           when "10",
-                           "0111"           when others;
+    --with valeur_et_afficheur_selection select
+        --disp_select_n_o <= "1110"           when "00",
+                           --"1101"           when "01",
+                           --"1011"           when "10",
+                           --"0111"           when others;
 
     -- Sélection de la valeur à afficher :
-    with valeur_et_afficheur_selection select
-        valeur_afficheur <= unite_seconde   when "00",
-                            dizaine_seconde when "01",
-                            unite_minute    when "10",
-                            dizaine_minute  when others;
+    with digit_index select
+        valeur_afficheur <= unite_seconde   when 0,
+                            dizaine_seconde when 1,
+                            unite_minute    when 2,
+                            dizaine_minute  when 3;
 
+    -- Sélection de la valeur à afficher :
+    --with valeur_et_afficheur_selection select
+        --valeur_afficheur <= unite_seconde   when "00",
+                            --dizaine_seconde when "01",
+                            --unite_minute    when "10",
+                            --dizaine_minute  when others;
+
+    ---------------------------------------------------------------------------
+    -- Activation des afficheurs (active bas)
+    process(digit_index)
+    begin
+        case digit_index is
+            when 0 => disp_select_n_o <= "1110"; -- Active l'afficheur 1
+            when 1 => disp_select_n_o <= "1101"; -- Active l'afficheur 2
+            when 2 => disp_select_n_o <= "1011"; -- Active l'afficheur 3
+            when 3 => disp_select_n_o <= "0111"; -- Active l'afficheur 4
+
+            when others => disp_select_n_o <= "1111"; -- Désactive tout
+        end case;
+    end process;
+
+    ---------------------------------------------------------------------------
 -------------------------------------------------------------------
 -- Implémentation de l'afficheur 7 segments :
 -------------------------------------------------------------------
     decoder_inst : entity work.SegmentDecoder(TruthTable)
         port map(
             digit_i    => valeur_afficheur,
-            segments_o => disp_segments_n_o
+            segments_o => segments
         );
 
 end Structural;
