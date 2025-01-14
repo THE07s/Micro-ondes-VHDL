@@ -178,7 +178,7 @@ architecture Structural of micro_ondes is
     signal clk_very_slow                    : std_logic;
     signal clk_div                          : std_logic := '0';         -- Horloge divisée
     signal clk_counter                      : integer := 0;
-    constant DIV_FACTOR                     : integer := 2e3;           -- Division de l'horloge
+    constant DIV_FACTOR                     : integer := 2e3;           -- Division de l'horloges
 
 begin
 -------------------------------------------------------------------
