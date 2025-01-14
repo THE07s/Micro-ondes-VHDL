@@ -222,7 +222,9 @@ begin
     -------------------------------------------------------------------
     --                       AFFECTATION LEDs                        --
     -------------------------------------------------------------------
-        leds_o <= (others => magnetron OR buzzer_actif);
+        leds_o(15 downto 11) <= (others => magnetron );
+        leds_o(4 downto 0) <= (others => magnetron );
+        leds_o(10 downto 5) <= (others => buzzer_actif);
 
     -------------------------------------------------------------------
     --                    NÉGATION DES SEGMENTS                      --
@@ -260,7 +262,7 @@ begin
 -------------------------------------------------------------------
     btn_left_detec : entity work.EventDetector(Simple)
     generic map(
-        DURATION    => 10
+        DURATION    => 3
     )
     port map(
         clk_i   => clk_i,
@@ -272,7 +274,7 @@ begin
     
     btn_right_detec : entity work.EventDetector(Simple)
     generic map(
-        DURATION    => 10
+        DURATION    => 3
     )
     port map(
         clk_i   => clk_i,
@@ -284,7 +286,7 @@ begin
     
     btn_center_detec : entity work.EventDetector(Simple)
     generic map(
-        DURATION    => 10
+        DURATION    => 3
     )
     port map(
         clk_i   => clk_i,
@@ -298,22 +300,22 @@ begin
 -- Code ajouté par Kenneth
 --------------------------------------------------------------------------------
     -- Division de l'horloge permettant de changer d'afficheur tous les 2e3 coups de clock :
-    process(clk_i)
-    begin
-        if rising_edge(clk_i) then
-            if clk_counter = DIV_FACTOR then
-                clk_div <= not clk_div;
-                clk_counter <= 0;
-            else
-                clk_counter <= clk_counter + 1;
-            end if;
-        end if;
-    end process;
+--    process(clk_i)
+--    begin
+--        if rising_edge(clk_i) then
+--            if clk_counter = DIV_FACTOR then
+--                clk_div <= not clk_div;
+--                clk_counter <= 0;
+--            else
+--                clk_counter <= clk_counter + 1;
+--            end if;
+--        end if;
+--    end process;
 
     -- Sélection de l'afficheur actif
-    process(clk_div)
+    process(clk_slow_20ms)
     begin
-        if rising_edge(clk_div) then
+        if rising_edge(clk_slow_20ms) then
             if digit_index = 3 then
                 digit_index <= 0;
             else
@@ -388,18 +390,16 @@ begin
 
                 ----------------------------------------------------------------
                 --                           BUZZER                           --
-                ----------------------------------------------------------------      
-                    if buzzer_actif = '1' then
-                        if compteur_buzzer < 3 then
-                            compteur_buzzer <= compteur_buzzer + 1;
-                        elsif compteur_buzzer = 3 then
-                            buzzer_actif    <= '0';
-                        end if;
+                ----------------------------------------------------------------
+                
+                    if fonctionnement = '1' and secondes = 0 then
+                        buzzer_actif    <= '1';
+                        fonctionnement  <='0';
+                    elsif buzzer_actif = '1' and compteur_buzzer < 3 then
+                        compteur_buzzer <= compteur_buzzer + 1;
                     else
-                        if secondes_decalees = 1 and secondes = 0 then
-                            buzzer_actif    <= '1';
-                            compteur_buzzer <= 0;
-                        end if;
+                        buzzer_actif    <='0';
+                        compteur_buzzer <= 0;
                     end if;
             end if;
 
