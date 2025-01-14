@@ -1,3 +1,38 @@
+-- ============================================================================
+-- Ce code fonctionne
+-- ============================================================================
+-- This VHDL code is designed to [briefly describe the purpose of the code].
+-- 
+-- Inputs:
+-- - [input_signal_name] : [description of the input signal]
+-- - [input_signal_name] : [description of the input signal]
+-- 
+-- Outputs:
+-- - [output_signal_name] : [description of the output signal]
+-- - [output_signal_name] : [description of the output signal]
+-- 
+-- Internal Signals:
+-- - [internal_signal_name] : [description of the internal signal]
+-- 
+-- Description:
+-- - [Provide a detailed description of what the code does, its functionality,
+--   and any important details that are necessary for understanding the code.]
+-- 
+-- Dependencies:
+-- - [List any dependencies or libraries required by this code]
+-- 
+-- Author:
+-- - [Your Name]
+-- 
+-- Date:
+-- - [Date of creation or modification]
+-- 
+-- Revision:
+-- - [Revision history, if applicable]
+-- ============================================================================
+
+
+
 --*****************************************************************************
 --
 -- CounterModN entity+archi
@@ -210,7 +245,7 @@ begin
         );
 
     divider_20ms_inst : entity work.CounterModN(Behavioral)
-        generic map( N => 2e6 
+        generic map( N => 2e3 
         )
         port map(
             clk_i   => clk_i,
@@ -262,7 +297,7 @@ begin
 --------------------------------------------------------------------------------
 -- Code ajouté par Kenneth
 --------------------------------------------------------------------------------
-    -- Division de l'horloge
+    -- Division de l'horloge permettant de changer d'afficheur tous les 2e3 coups de clock :
     process(clk_i)
     begin
         if rising_edge(clk_i) then
@@ -339,7 +374,6 @@ begin
                 ----------------------------------------------------------------
                 --                FONCTIONNEMENT MICRO-ONDES                  --
                 ----------------------------------------------------------------
-
                     if fonctionnement = '1' and pause = '0' and porte_fermee = '1' then
                         if secondes > 0 then
                             magnetron <= '1';
@@ -351,7 +385,6 @@ begin
                     else
                         magnetron <= '0';
                     end if;
-
 
                 ----------------------------------------------------------------
                 --                           BUZZER                           --
@@ -390,20 +423,6 @@ begin
 -------------------------------------------------------------------
 --                      MUX POUR AFFICHEUR                       --
 -------------------------------------------------------------------
-    -- p_affichage : process(clk_slow_20ms)
-    -- begin
-    --     if rising_edge(clk_slow_20ms) then
-    --         valeur_et_afficheur_selection <= std_logic_vector(unsigned(valeur_et_afficheur_selection) + 1 );
-    --     end if;
-    -- end process p_affichage;
-
-    -- Sélection de l'afficheur à piloter :
-    --with valeur_et_afficheur_selection select
-        --disp_select_n_o <= "1110"           when "00",
-                           --"1101"           when "01",
-                           --"1011"           when "10",
-                           --"0111"           when others;
-
     -- Sélection de la valeur à afficher :
     with digit_index select
         valeur_afficheur <= unite_seconde   when 0,
@@ -411,28 +430,21 @@ begin
                             unite_minute    when 2,
                             dizaine_minute  when 3;
 
-    -- Sélection de la valeur à afficher :
-    --with valeur_et_afficheur_selection select
-        --valeur_afficheur <= unite_seconde   when "00",
-                            --dizaine_seconde when "01",
-                            --unite_minute    when "10",
-                            --dizaine_minute  when others;
-
     ---------------------------------------------------------------------------
     -- Activation des afficheurs (active bas)
     process(digit_index)
     begin
         case digit_index is
-            when 0 => disp_select_n_o <= "1110"; -- Active l'afficheur 1
-            when 1 => disp_select_n_o <= "1101"; -- Active l'afficheur 2
-            when 2 => disp_select_n_o <= "1011"; -- Active l'afficheur 3
-            when 3 => disp_select_n_o <= "0111"; -- Active l'afficheur 4
+            when 0 => disp_select_n_o <= "1110"; 
+            when 1 => disp_select_n_o <= "1101";
+            when 2 => disp_select_n_o <= "1011";
+            when 3 => disp_select_n_o <= "0111";
 
-            when others => disp_select_n_o <= "1111"; -- Désactive tout
+            when others => disp_select_n_o <= "1111"; -- Désactive tous les afficheurs
         end case;
     end process;
 
-    ---------------------------------------------------------------------------
+
 -------------------------------------------------------------------
 -- Implémentation de l'afficheur 7 segments :
 -------------------------------------------------------------------
