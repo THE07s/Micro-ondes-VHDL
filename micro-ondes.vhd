@@ -1,5 +1,5 @@
 -- ============================================================================
--- Ce code fonctionne
+-- Ce code fonctionne (sauf les afficheurs)
 -- ============================================================================
 -- This VHDL code is designed to [briefly describe the purpose of the code].
 -- 
