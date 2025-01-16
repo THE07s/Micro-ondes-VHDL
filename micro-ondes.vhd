@@ -242,7 +242,7 @@ begin
             value_o     => open,
             cycle_o     => clk_slow_100ms
         );
-     counter_10x100ms_inst : entity work.CounterModN(Behavioral)
+     divider_1s_inst : entity work.CounterModN(Behavioral)
        generic map(
             N => 10
         )
