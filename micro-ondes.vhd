@@ -2,7 +2,7 @@
 -- ============================================================================
 -- ============================================================================
 -- ============================================================================
--- Ce code fonctionne (sauf les animations de LEDs et les deux points de l'afficheur)
+-- Ce code fonctionne (sauf les animations de LEDs)
 -- ============================================================================
 -- ============================================================================
 -- ============================================================================
@@ -174,8 +174,9 @@ architecture Structural of micro_ondes is
     signal dizaine_seconde                                          : integer range 0 to 5;
     signal unite_seconde                                            : integer range 0 to 9;
 
-    signal valeur_et_afficheur_selection                            : std_logic_vector(1 downto 0) := "00";
+    signal digit_index                                              : integer range 0 to 3;
     signal valeur_afficheur                                         : integer range 0 to 9;
+    signal segments                                                 : std_logic_vector(0 to 6); -- Segments pour l'affichage
     
     signal btn_left_s                                               : std_logic;
     signal btn_right_s                                              : std_logic;
@@ -187,8 +188,6 @@ architecture Structural of micro_ondes is
 
 
     -- Signaux ajoutés par Kenneth :
-    signal digit_index                                              : integer range 0 to 3;
-    signal segments                                                 : std_logic_vector(0 to 6); -- Segments pour l'affichage
 
 begin
 -------------------------------------------------------------------
@@ -197,8 +196,8 @@ begin
     -------------------------------------------------------------------
     --                       AFFECTATION LEDs                        --
     -------------------------------------------------------------------
-        leds_o(14 downto 11)    <= (others => magnetron );
-        leds_o(4 downto 0)      <= (others => magnetron );
+        leds_o(14 downto 11)    <= (others => magnetron);
+        leds_o(4 downto 0)      <= (others => magnetron);
         leds_o(10 downto 5)     <= (others => buzzer_actif);
         leds_o(15)              <= switches_i(15);
 
@@ -357,7 +356,6 @@ begin
                 ----------------------------------------------------------------
                 --                           BUZZER                           --
                 ----------------------------------------------------------------
-                
                     if fonctionnement = '1' and secondes = 0 then
                         buzzer_actif    <= '1';
                         fonctionnement  <='0';
@@ -381,17 +379,15 @@ begin
             dizaine_minute  <= minute / 10;
             unite_minute    <= minute - (dizaine_minute * 10);
 
-
-
         end if;
     end process p_fonctionnement_micro_ondes;
 
 -------------------------------------------------------------------
 --                 CADENÇAGE CHOIX AFFICHEUR MUX                 --
 -------------------------------------------------------------------
-    process(clk_slow_5ms)
+    process(clk_i)
     begin
-        if rising_edge(clk_slow_5ms) then
+        if rising_edge(clk_slow_20ms) then
             if digit_index = 3 then
                 digit_index <= 0;
             else
