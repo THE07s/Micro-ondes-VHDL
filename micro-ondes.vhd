@@ -1,36 +1,12 @@
 -- ============================================================================
--- Ce code fonctionne (sauf les afficheurs)
 -- ============================================================================
--- This VHDL code is designed to [briefly describe the purpose of the code].
--- 
--- Inputs:
--- - [input_signal_name] : [description of the input signal]
--- - [input_signal_name] : [description of the input signal]
--- 
--- Outputs:
--- - [output_signal_name] : [description of the output signal]
--- - [output_signal_name] : [description of the output signal]
--- 
--- Internal Signals:
--- - [internal_signal_name] : [description of the internal signal]
--- 
--- Description:
--- - [Provide a detailed description of what the code does, its functionality,
---   and any important details that are necessary for understanding the code.]
--- 
--- Dependencies:
--- - [List any dependencies or libraries required by this code]
--- 
--- Author:
--- - [Your Name]
--- 
--- Date:
--- - [Date of creation or modification]
--- 
--- Revision:
--- - [Revision history, if applicable]
 -- ============================================================================
-
+-- ============================================================================
+-- Ce code fonctionne (sauf les animations de LEDs et les deux points de l'afficheur)
+-- ============================================================================
+-- ============================================================================
+-- ============================================================================
+-- ============================================================================
 
 
 --*****************************************************************************
@@ -92,21 +68,21 @@
     begin
         with digit_i select
             segments_o <= "1111110" when  0,
-                        "0110000" when  1,
-                        "1101101" when  2,
-                        "1111001" when  3,
-                        "0110011" when  4,
-                        "1011011" when  5,
-                        "1011111" when  6,
-                        "1110000" when  7,
-                        "1111111" when  8,
-                        "1111011" when  9,
-                        "1110111" when 10,
-                        "0011111" when 11,
-                        "1001110" when 12,
-                        "0111101" when 13,
-                        "1001111" when 14,
-                        "1000111" when 15;
+                          "0110000" when  1,
+                          "1101101" when  2,
+                          "1111001" when  3,
+                          "0110011" when  4,
+                          "1011011" when  5,
+                          "1011111" when  6,
+                          "1110000" when  7,
+                          "1111111" when  8,
+                          "1111011" when  9,
+                          "1110111" when 10,
+                          "0011111" when 11,
+                          "1001110" when 12,
+                          "0111101" when 13,
+                          "1001111" when 14,
+                          "1000111" when 15;
     end TruthTable;
 
 --*****************************************************************************
@@ -178,42 +154,41 @@ end micro_ondes;
 
 architecture Structural of micro_ondes is
 
-    -- Clock ralenties 1s & 20ms :
-    signal clk_slow_1s                      : std_logic;
-    signal clk_slow_20ms                    : std_logic;
+    -- Clock progressivement ralentie :
+    signal clk_slow_5ms, clk_slow_20ms, clk_slow_100ms, clk_slow_1s : std_logic;
 
     -- Signaux internes :
-    signal porte_fermee                     : std_logic := '1';
-    signal fonctionnement                   : std_logic := '0';
-    signal pause                            : std_logic := '0';
-    signal magnetron                        : std_logic := '0';
-    signal buzzer_actif                     : std_logic := '0';
-    signal compteur_buzzer                  : integer range 0 to 3 := 0;
+    signal porte_fermee                                             : std_logic := '0';
+    signal fonctionnement                                           : std_logic := '0';
+    signal pause                                                    : std_logic := '0';
+    signal magnetron                                                : std_logic := '0';
+    signal buzzer_actif                                             : std_logic := '0';
+    signal compteur_buzzer                                          : integer range 0 to 3 := 0;
 
-    signal secondes                         : integer range 0 to 5999 := 0;
-    signal secondes_decalees                : integer range 0 to 5999 := 0;
-    signal minute                           : integer range 0 to 99;
-    signal seconde                          : integer range 0 to 59;
+    signal secondes                                                 : integer range 0 to 5999 := 0;
+    signal minute                                                   : integer range 0 to 99;
+    signal seconde                                                  : integer range 0 to 59;
 
-    signal dizaine_minute                   : integer range 0 to 9;
-    signal unite_minute                     : integer range 0 to 9;
-    signal dizaine_seconde                  : integer range 0 to 5;
-    signal unite_seconde                    : integer range 0 to 9;
+    signal dizaine_minute                                           : integer range 0 to 9;
+    signal unite_minute                                             : integer range 0 to 9;
+    signal dizaine_seconde                                          : integer range 0 to 5;
+    signal unite_seconde                                            : integer range 0 to 9;
 
-    signal valeur_et_afficheur_selection    : std_logic_vector(1 downto 0) := "00";
-    signal valeur_afficheur                 : integer range 0 to 9;
+    signal valeur_et_afficheur_selection                            : std_logic_vector(1 downto 0) := "00";
+    signal valeur_afficheur                                         : integer range 0 to 9;
     
-    signal btn_left_s                       : std_logic;
-    signal btn_right_s                      : std_logic;
-    signal btn_center_s                     : std_logic;
+    signal btn_left_s                                               : std_logic;
+    signal btn_right_s                                              : std_logic;
+    signal btn_center_s                                             : std_logic;
+--    signal btn_up_s                                                 : std_logic;
+--    signal btn_down_s                                               : std_logic;
+    
+    constant DURATION                                               : integer := 2;
+
 
     -- Signaux ajoutés par Kenneth :
-    signal digit_index                      : integer range 0 to 3;
-    signal segments                         : std_logic_vector(0 to 6); -- Segments pour l'affichage
-    signal clk_very_slow                    : std_logic;
-    signal clk_div                          : std_logic := '0';         -- Horloge divisée
-    signal clk_counter                      : integer := 0;
-    constant DIV_FACTOR                     : integer := 2e3;           -- Division de l'horloges
+    signal digit_index                                              : integer range 0 to 3;
+    signal segments                                                 : std_logic_vector(0 to 6); -- Segments pour l'affichage
 
 begin
 -------------------------------------------------------------------
@@ -222,39 +197,62 @@ begin
     -------------------------------------------------------------------
     --                       AFFECTATION LEDs                        --
     -------------------------------------------------------------------
-        leds_o(15 downto 11) <= (others => magnetron );
-        leds_o(4 downto 0) <= (others => magnetron );
-        leds_o(10 downto 5) <= (others => buzzer_actif);
+        leds_o(14 downto 11)    <= (others => magnetron );
+        leds_o(4 downto 0)      <= (others => magnetron );
+        leds_o(10 downto 5)     <= (others => buzzer_actif);
+        leds_o(15)              <= switches_i(15);
 
     -------------------------------------------------------------------
     --                    NÉGATION DES SEGMENTS                      --
     -------------------------------------------------------------------
-        disp_segments_n_o <= not segments;
-
+        disp_segments_n_o       <= not segments;
 
 -------------------------------------------------------------------
--- Implémentation des deux diviseurs de clock :
+-- Implémentation des diviseurs de clock :
 -------------------------------------------------------------------
-    divider_1s_inst : entity work.CounterModN(Behavioral)
-        generic map( N => 100e6 
+    divider_5ms_inst : entity work.CounterModN(Behavioral)
+       generic map(
+            N => 500000
         )
         port map(
-            clk_i   => clk_i,
-            reset_i => '0',
-            inc_i   => '1',
-            value_o => open,
-            cycle_o => clk_slow_1s
+            clk_i       => clk_i,
+            reset_i     => '0',
+            inc_i       => '1',
+            value_o     => open,
+            cycle_o     => clk_slow_5ms
         );
-
     divider_20ms_inst : entity work.CounterModN(Behavioral)
-        generic map( N => 2e3 
+       generic map(
+            N => 4
         )
         port map(
-            clk_i   => clk_i,
-            reset_i => '0',
-            inc_i   => '1',
-            value_o => open,
-            cycle_o => clk_slow_20ms
+            clk_i       => clk_i,
+            reset_i     => '0',
+            inc_i       => clk_slow_5ms,
+            value_o     => open,
+            cycle_o     => clk_slow_20ms
+        );
+    divider_100ms_inst : entity work.CounterModN(Behavioral)
+       generic map(
+            N => 5
+        )
+        port map(
+            clk_i       => clk_i,
+            reset_i     => '0',
+            inc_i       => clk_slow_20ms,
+            value_o     => open,
+            cycle_o     => clk_slow_100ms
+        );
+     counter_10x100ms_inst : entity work.CounterModN(Behavioral)
+       generic map(
+            N => 10
+        )
+        port map(
+            clk_i       => clk_i,
+            reset_i     => btn_center_i,
+            inc_i       => clk_slow_100ms,
+            value_o     => open,
+            cycle_o     => clk_slow_1s
         );
 
 -------------------------------------------------------------------
@@ -262,68 +260,39 @@ begin
 -------------------------------------------------------------------
     btn_left_detec : entity work.EventDetector(Simple)
     generic map(
-        DURATION    => 3
+        DURATION        => DURATION
     )
     port map(
-        clk_i   => clk_i,
-        src_i   => btn_left_i,
-        on_evt_o   => btn_left_s,
-        off_evt_o   => open,
-        status_o   => open
+        clk_i           => clk_i,
+        src_i           => btn_left_i,
+        on_evt_o        => btn_left_s,
+        off_evt_o       => open,
+        status_o        => open
     );
     
     btn_right_detec : entity work.EventDetector(Simple)
     generic map(
-        DURATION    => 3
+        DURATION        => DURATION
     )
     port map(
-        clk_i   => clk_i,
-        src_i   => btn_right_i,
-        on_evt_o   => btn_right_s,
-        off_evt_o   => open,
-        status_o   => open
+        clk_i           => clk_i,
+        src_i           => btn_right_i,
+        on_evt_o        => btn_right_s,
+        off_evt_o       => open,
+        status_o        => open
     );
     
     btn_center_detec : entity work.EventDetector(Simple)
     generic map(
-        DURATION    => 3
+        DURATION        => DURATION
     )
     port map(
-        clk_i   => clk_i,
-        src_i   => btn_center_i,
-        on_evt_o   => btn_center_s,
-        off_evt_o   => open,
-        status_o   => open
+        clk_i           => clk_i,
+        src_i           => btn_center_i,
+        on_evt_o        => btn_center_s,
+        off_evt_o       => open,
+        status_o        => open
     );
-    
---------------------------------------------------------------------------------
--- Code ajouté par Kenneth
---------------------------------------------------------------------------------
-    -- Division de l'horloge permettant de changer d'afficheur tous les 2e3 coups de clock :
---    process(clk_i)
---    begin
---        if rising_edge(clk_i) then
---            if clk_counter = DIV_FACTOR then
---                clk_div <= not clk_div;
---                clk_counter <= 0;
---            else
---                clk_counter <= clk_counter + 1;
---            end if;
---        end if;
---    end process;
-
-    -- Sélection de l'afficheur actif
-    process(clk_slow_20ms)
-    begin
-        if rising_edge(clk_slow_20ms) then
-            if digit_index = 3 then
-                digit_index <= 0;
-            else
-                digit_index <= digit_index + 1;
-            end if;
-        end if;
-    end process;
-
 
 -------------------------------------------------------------------
 -- Process principal :
@@ -363,12 +332,10 @@ begin
             if btn_left_s = '1' then
                 if secondes > 29 then
                     secondes <= secondes - 30; -- minimum atteignable de 0s
-                    secondes_decalees <= secondes + 1;
                 end if;
             elsif btn_right_s = '1' then
                 if secondes < 5970 then
                     secondes <= secondes + 30; -- maximum atteignable de 99m59s
-                    secondes_decalees <= secondes + 1;
                 end if;
             end if;
 
@@ -380,7 +347,6 @@ begin
                         if secondes > 0 then
                             magnetron <= '1';
                             secondes  <= secondes - 1;
-                            secondes_decalees <= secondes_decalees - 1;
                         else
                             magnetron <= '0';
                         end if;
@@ -419,6 +385,20 @@ begin
 
         end if;
     end process p_fonctionnement_micro_ondes;
+
+-------------------------------------------------------------------
+--                 CADENÇAGE CHOIX AFFICHEUR MUX                 --
+-------------------------------------------------------------------
+    process(clk_slow_5ms)
+    begin
+        if rising_edge(clk_slow_5ms) then
+            if digit_index = 3 then
+                digit_index <= 0;
+            else
+                digit_index <= digit_index + 1;
+            end if;
+        end if;
+    end process;
 
 -------------------------------------------------------------------
 --                      MUX POUR AFFICHEUR                       --
