@@ -1,5 +1,5 @@
 # Rapport Technique - Projet Micro-ondes en VHDL
-
+#### PICAULT Romain & LEENAERTS Loïc
 ## Table des matières
 
 - [1. Introduction](#1-introduction)
@@ -606,6 +606,7 @@ end process;
 ### 4.1. Résultats obtenus
 #### Chronogramme
 
+![{DF59E79D-36EC-4DCB-9BF3-F294D4495DF5}](https://github.com/user-attachments/assets/c708f32e-d2e3-403a-aba9-95b74b51b68b)
 
 
 #### Tests sur FPGA
