@@ -406,8 +406,7 @@ begin
                             unite_minute    when 2,
                             dizaine_minute  when 3;
 
-    ---------------------------------------------------------------------------
-    -- Activation des afficheurs (active bas)
+    -- Activation des afficheurs :
     process(digit_index)
     begin
         case digit_index is
