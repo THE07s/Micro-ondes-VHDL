@@ -6,25 +6,21 @@
 
 Les avancées technologiques dans le domaine de l'électronique numérique ont permis la conception de systèmes permettant la réalisation de tâches concurrentes. Les FPGA (Field Programmable Gate Arrays) sont ces systèmes. C'est sur cette plateforme que nous avons réalisé ce projet. Notre but était de concevoir l'équivalent d'un micro-ondes en faisant usage d'abstractions cohérentes pour remplacer les parties mécaniques de celui-ci par des indicateurs visuels adaptés. Ce projet avait pour visée de nous apprendre à implémenter un tel système en utilisant un langage de description (VHDL) tout en approfondissant nos connaissances en logique combinatoire séquentielle. Ce rapport détails les différentes étapes de développement du projet, de l'analyse du cahier des charges et du besoin a l'implémentation a proprement parler sur la carte Basys3.
 
- 
-
-### 1.1. Contexte du projet
-
- 
+### 1.1. Contexte du projet 
 
 \[Insérez ici une description du contexte et des objectifs pédagogiques du projet.\]
 
- 
-
 ### 1.2. Objectifs
 
- 
+- [ ] Réaliser un visuel schématisant l'ensemble de notre systeme, ses ports, signaux et "blocs" internes.
 
-- Réaliser un visuel schématisant l'ensemble de notre systeme, ses ports, signaux et "blocs" internes.
-- Implémenter le pilotage et l'affichage de valeur sur les afficheurs 7 segments.
-- Implémenter le fonctionnement de notre schéma en VHDL en utilisant un processus par "bloc".
-- Corriger les erreurs d'asynchronisme en regroupant les processus en un seul et sous la même liste de sensibilité.
-- Polissage et révision de la logique du micro-ondes.
+- [ ] Implémenter le pilotage et l'affichage de valeur sur les afficheurs 7 segments.
+
+- [ ] Implémenter le fonctionnement de notre schéma en VHDL en utilisant un processus par "bloc".
+
+- [ ] Corriger les erreurs d'asynchronisme en regroupant les processus en un seul et sous la même liste de sensibilité.
+
+- [ ] Polissage et révision de la logique du micro-ondes.
 
  
 
