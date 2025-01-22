@@ -12,15 +12,15 @@ Les avancées technologiques dans le domaine de l'électronique numérique ont p
 
 ### 1.2. Objectifs
 
-- [ ] Réaliser un visuel schématisant l'ensemble de notre systeme, ses ports, signaux et "blocs" internes.
+- [x] Réaliser un visuel schématisant l'ensemble de notre systeme, ses ports, signaux et "blocs" internes.
 
-- [ ] Implémenter le pilotage et l'affichage de valeur sur les afficheurs 7 segments.
+- [x] Implémenter le pilotage et l'affichage de valeur sur les afficheurs 7 segments.
 
-- [ ] Implémenter le fonctionnement de notre schéma en VHDL en utilisant un processus par "bloc".
+- [x] Implémenter le fonctionnement de notre schéma en VHDL en utilisant un processus par "bloc".
 
-- [ ] Corriger les erreurs d'asynchronisme en regroupant les processus en un seul et sous la même liste de sensibilité.
+- [x] Corriger les erreurs d'asynchronisme en regroupant les processus en un seul et sous la même liste de sensibilité.
 
-- [ ] Polissage et révision de la logique du micro-ondes.
+- [x] Polissage et révision de la logique du micro-ondes.
 
  
 
