@@ -4,6 +4,13 @@
 
 Ce projet consiste à réaliser le système contrôlant un micro-onde en VHDL sur une carte BASYS3. Les spécifications du système sont les suivantes :
 
+restart\
+add_force -repeat_every 100ns clk_i 0 0ns 1 50ns\
+add_force btn_right_i 1 100ns 0 300ns\
+add_force switches_i(15) 0 0ns 1 1us\
+add_force btn_center_i 1 0ns 0 100ns\
+run 180ms
+
 ### Composants
 
 - **2 LEDs** : Simulent le buzzer et l’activation du magnétron.
@@ -15,19 +22,24 @@ Ce projet consiste à réaliser le système contrôlant un micro-onde en VHDL su
 ### Fonctionnalités
 
 1. **Activation du magnétron et du buzzer** :
-    - Les LEDs simulent l'activation du magnétron et du buzzer.
-    
+
+   - Les LEDs simulent l'activation du magnétron et du buzzer.
+
 2. **Capteur de porte** :
-    - Un interrupteur sert de capteur pour détecter si la porte du micro-onde est fermée.
-    
+
+   - Un interrupteur sert de capteur pour détecter si la porte du micro-onde est fermée.
+
 3. **Sélection du temps de fonctionnement** :
-    - Des interrupteurs permettent de sélectionner le temps de fonctionnement du micro-onde.
-    
+
+   - Des interrupteurs permettent de sélectionner le temps de fonctionnement du micro-onde.
+
 4. **Lancement du système** :
-    - Le bouton central est utilisé pour démarrer le micro-onde.
-    
+
+   - Le bouton central est utilisé pour démarrer le micro-onde.
+
 5. **Affichage du temps restant** :
-    - Les afficheurs 7 segments montrent le temps restant de cuisson.
+
+   - Les afficheurs 7 segments montrent le temps restant de cuisson.
 
 ### Schéma de Connexion
 
@@ -74,11 +86,13 @@ stateDiagram
 ### Images des Composants
 
 ![Carte BASYS3](https://example.com/basys3.jpg)
-![LEDs](https://example.com/leds.jpg)
-![Interrupteurs](https://example.com/switches.jpg)
-![Bouton central](https://example.com/button.jpg)
-![Afficheurs 7 segments](https://example.com/7segments.jpg)
 
-## Conclusion
+![LEDs](https://example.com/leds.jpg)
+
+![Interrupteurs](https://example.com/switches.jpg)
+
+![Bouton central](https://example.com/button.jpg)
+
+![Afficheurs 7 segments](https://example.com/7segments.jpg)## Conclusion
 
 Ce projet permet de simuler le fonctionnement d'un micro-onde en utilisant VHDL sur une carte BASYS3. Les différentes fonctionnalités sont implémentées à l'aide de LEDs, interrupteurs, un bouton central et des afficheurs 7 segments pour offrir une expérience utilisateur complète.
