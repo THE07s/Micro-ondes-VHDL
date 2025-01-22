@@ -2,6 +2,36 @@
 
 ## Table des matières
 
+- [1. Introduction](#1-introduction)
+  - [1.1. Contexte du projet](#11-contexte-du-projet)
+  - [1.2. Objectifs](#12-objectifs)
+- [2. Analyse et Conception](#2-analyse-et-conception)
+  - [2.1. Notre cahier des charges](#21-notre-cahier-des-charges)
+  - [2.2. Conception du schéma global](#22-conception-du-schéma-global)
+  - [2.3. Réflexions sur la gestion du temps](#23-réflexions-sur-la-gestion-du-temps)
+  - [2.4. Tests et ajustements](#24-tests-et-ajustements)
+  - [2.5. Fonctionnalités spécifiques](#25-fonctionnalités-spécifiques)
+- [3. Implémentation en VHDL](#3-implémentation-en-vhdl)
+  - [3.1. Décomposition fonctionnelle](#31-décomposition-fonctionnelle)
+  - [3.2. Signaux internes](#32-signaux-internes)
+  - [3.3. Blocs de code principaux](#33-blocs-de-code-principaux)
+    - [3.3.1. Décodeur (SegmentDecoder)](#331-décodeur-segmentdecoder)
+    - [3.3.2. Gestion des LEDs](#332-gestion-des-leds)
+    - [3.3.3. Diviseurs d’horloge](#333-diviseurs-dhorloge)
+    - [3.3.4. Processus principal : p_fonctionnement_micro_ondes](#334-processus-principal--p_fonctionnement_micro_ondes)
+    - [3.3.5. Cadence et multiplexage de l’afficheur](#335-cadence-et-multiplexage-de-lafficheur)
+- [4. Simulation et Tests](#4-simulation-et-tests)
+  - [4.1. Résultats obtenus](#41-résultats-obtenus)
+    - [Chronogramme](#chronogramme)
+    - [Tests sur FPGA](#tests-sur-fpga)
+  - [4.2. Analyse des performances et limites](#42-analyse-des-performances-et-limites)
+- [5. Conclusion et Perspectives](#5-conclusion-et-perspectives)
+  - [5.1. Résumé des résultats obtenus](#51-résumé-des-résultats-obtenus)
+  - [5.2. Améliorations possibles](#52-améliorations-possibles)
+  - [5.3. Compétences acquises](#53-compétences-acquises)
+
+---
+
 ## 1. Introduction
 Les avancées technologiques dans le domaine de l'électronique numérique ont permis la conception de systèmes permettant la réalisation de tâches concurrentes. Les FPGA (Field Programmable Gate Arrays) sont ces systèmes. C'est sur cette plateforme que nous avons réalisé ce projet. Notre but était de concevoir l'équivalent d'un micro-ondes en faisant usage d'abstractions cohérentes pour remplacer les parties mécaniques de celui-ci par des indicateurs visuels adaptés.
 Ce projet avait pour visée de nous apprendre à implémenter un tel système en utilisant un langage de description (VHDL) tout en approfondissant nos connaissances en logique combinatoire séquentielle.
